@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/onubo/react-native-logs.svg?branch=master)](https://travis-ci.org/onubo/react-native-logs)
+
 # react-native-logs
 Simple logger for React-Native with custom transports and levels
 
