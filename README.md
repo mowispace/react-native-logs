@@ -41,7 +41,7 @@ log.error("This log will be printed correctly")
 
 ### Config options
 
-All params are optional and will take default values if not passed. Each levels has its "level" power and all the level with lower power then the setted one (config.level) wil not be shown.
+All params are optional and will take default values if not passed. Each level has its level power and all the level with lower power then the setted one (config.level) wil not be shown.
 
 ```javascript
 import { logger, chromeConsoleAsyncTransport } from "react-native-logs"
