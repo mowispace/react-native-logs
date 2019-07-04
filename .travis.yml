@@ -5,8 +5,3 @@ install:
   - npm install
 script:
   - npm test
-jobs:
-  include:
-    - stage: Produce Coverage
-      node_js: node
-      script: test:coveralls
