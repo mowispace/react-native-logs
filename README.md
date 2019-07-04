@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/onubo/react-native-logs.svg?branch=master)](https://travis-ci.org/onubo/react-native-logs) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
+[![Build Status](https://travis-ci.org/onubo/react-native-logs.svg?branch=master)](https://travis-ci.org/onubo/react-native-logs) [![codecov](https://codecov.io/gh/onubo/react-native-logs/branch/master/graph/badge.svg)](https://codecov.io/gh/onubo/react-native-logs) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 
 # react-native-logs
 
