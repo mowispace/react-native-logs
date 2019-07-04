@@ -149,12 +149,12 @@ In order to be sure not to freeze any animations, you can use the `InteractionMa
 Example:
 
 ```javascript
-import { logger, webConsoleSyncTransport } from "react-native-logs"
+import { logger, chromeConsoleSyncTransport } from "react-native-logs"
 
 const log = logger.createLogger({
   transport: (msg, level) => {
     InteractionManager.runAfterInteractions(() => {
-      webConsoleSyncTransport(msg, level)
+      chromeConsoleSyncTransport(msg, level)
     })
     return true
   },
