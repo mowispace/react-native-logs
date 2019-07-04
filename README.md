@@ -7,8 +7,10 @@ Simple logger for React-Native with custom transports and levels
 ## Installation
 
 ```sh
-npm install react-native-logs --save
+npm install --save https://github.com/onubo/react-native-logs/tarball/master
 ```
+
+coming soon on NPM
 
 ## Usage
 
