@@ -2,7 +2,7 @@
 
 # react-native-logs
 
-Simple logger for React-Native with custom transports and levels
+Simple logger for React-Native with custom transports and levels.
 
 ## Installation
 
@@ -28,7 +28,7 @@ If you don't pass any configuration parameters to the logger.createLogger() meth
 
 ### Filter logs
 
-Using the setLevel method you can set the minimum log level. Example: setting the "info" level, all the "trace" logs will not be printed while the "info", "warn" and "error" logs will be.
+Using the setLevel method you can set the minimum log level based on their power.
 
 ```javascript
 var log = logger.createLogger()
@@ -41,7 +41,7 @@ log.error("This log will be printed correctly")
 
 ### Config options
 
-All params are optional and will take default values if not passed. Each levels has its "level" power and all the level with lower power then the setted one (config.level) wil not be shown.
+All params are optional and will take default values if not passed. Each level has its power and all the level with lower power then the setted one will not be shown when the app run.
 
 ```javascript
 import { logger, chromeConsoleAsyncTransport } from "react-native-logs"
@@ -63,7 +63,7 @@ var log = logger.createLogger(config)
 | --------- | -------- | ------------------------------------- | ----------------------------------------- |
 | level     | string   | Initialize log level power            | First level ("trace" with default levels) |
 | transport | Function | Set the transport function for logs   | consoleSync                               |
-| levels    | Object   | Set custom log levels with name:power | {trace: 0, info: 1, warn: 2, error: 3}    |
+| levels    | Object   | Set custom log levels: {name:power}   | {trace: 0, info: 1, warn: 2, error: 3}    |
 
 ### Preset Transports
 
@@ -78,7 +78,7 @@ New presets transports coming soon...
 ### Custom Transport
 
 You will use the transport function to actually show the log. Eg. you can make a custom transport to send logs to an online service, or write it to a file.
-The transport is a function that receives as parameters
+The transport is a function that receives as parameters:
 
 - `msg: Object | string | Function`
 - `level: {power: number; text: string}`
@@ -165,4 +165,4 @@ const log = logger.createLogger({
 
 ## Why another logging library?
 
-After trying the most famous logging libraries like winston and bunyan we realized that for react-native we needed something simpler, but still flexible, and without dependencies on nodejs (we don't like the rn-nodeify solution). Any criticism is welcome.
+After trying the most famous logging libraries, like winston and bunyan, we realized that for react-native we needed something simpler, but still flexible, and without dependencies on nodejs (we don't like the rn-nodeify solution). Any criticism is welcome.
