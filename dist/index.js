@@ -4,15 +4,22 @@
  * Onubo s.r.l. - www.onubo.com - info@onubo.com
  * MIT license
  * Simple logger for React-Native with custom transports and levels
- **/
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Import preset transports
- **/
+/** Import preset transports */
 const transports_1 = require("./transports");
 exports.consoleSyncTransport = transports_1.consoleSyncTransport;
 exports.chromeConsoleSyncTransport = transports_1.chromeConsoleSyncTransport;
 exports.chromeConsoleAsyncTransport = transports_1.chromeConsoleAsyncTransport;
+/** Reserved key log string to avoid overwriting other methods or properties */
+const reservedKey = [
+    'log',
+    'setLevel',
+    'getLevel',
+    '_levels',
+    '_level',
+    '_transport'
+];
 /** Default configuration parameters for logger */
 const defaultLogger = {
     level: "trace",
@@ -31,7 +38,7 @@ class logs {
         this._transport = defaultLogger.transport;
         this._levels = defaultLogger.levels;
         /** Check if config levels property exist and set it */
-        if (config && config.levels && typeof config.levels === "object") {
+        if (config && config.levels && typeof config.levels === "object" && Object.keys(config.levels).length > 0) {
             this._levels = config.levels;
         }
         /** Check if config level property exist and set it */
@@ -48,11 +55,14 @@ class logs {
         /** Bind correct log levels methods */
         let _this = this;
         Object.keys(this._levels).forEach((level) => {
-            if (typeof this._levels[level] === "number") {
+            if (reservedKey.indexOf(level) !== -1) {
+                throw Error(`react-native-logs: [${level}] is a reserved key, you cannot set it as custom level`);
+            }
+            else if (typeof this._levels[level] === "number") {
                 _this[level] = this.log.bind(this, level);
             }
             else {
-                delete this._levels[level];
+                throw Error(`react-native-logs: [${level}] wrong level config`);
             }
         }, this);
     }
@@ -94,6 +104,9 @@ class logs {
         return this._level;
     }
 }
+/** Extend logs Class with generic types to avoid typescript errors on dynamic log methods */
+class logTyped extends logs {
+}
 /**
  * Create a logger object. All params will take default values if not passed.
  * each levels has its "level" power so we can filter logs with < and > operators
@@ -104,7 +117,7 @@ class logs {
  * @param  {Object|undefined}      levels     Set custom log levels
  */
 const createLogger = (config) => {
-    return new logs(config);
+    return new logTyped(config);
 };
 const logger = {
     createLogger,

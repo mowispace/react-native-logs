@@ -3,14 +3,10 @@
  * Onubo s.r.l. - www.onubo.com - info@onubo.com
  * MIT license
  * Simple logger for React-Native with custom transports and levels
- **/
-/**
- * Import preset transports
- **/
+ */
+/** Import preset transports */
 import { consoleSyncTransport, chromeConsoleSyncTransport, chromeConsoleAsyncTransport } from "./transports";
-/**
- * Types Declaration
- **/
+/** Types Declaration */
 declare type transportFunctionType = (msg: Object | string | Function, level: {
     power: number;
     text: string;
@@ -51,7 +47,11 @@ declare class logs {
      */
     getLevel(): string;
 }
+/** Extend logs Class with generic types to avoid typescript errors on dynamic log methods */
+declare class logTyped extends logs {
+    [key: string]: any;
+}
 declare const logger: {
-    createLogger: (config?: configLoggerType | undefined) => logs;
+    createLogger: (config?: configLoggerType | undefined) => logTyped;
 };
 export { logger, consoleSyncTransport, chromeConsoleSyncTransport, chromeConsoleAsyncTransport, };
