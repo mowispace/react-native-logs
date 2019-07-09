@@ -39,10 +39,10 @@ test("When set higher power level then the current level, log function shoud ret
   expect(log.trace("message")).toBe(false)
 })
 
-test("Custom levels should be defined, even with the wrong config levels", () => {
+test("Custom levels should be defined, even with wrong level config", () => {
   var customConfig = {
-    level: "mustBeInLevels",
-    levels: { custom: 0, wrong: "mustBeNumber" },
+    level: "wrongLevel",
+    levels: { custom: 0 },
   }
   var log = rnlogs.logger.createLogger(customConfig)
   log.setLevel("custom")
@@ -50,13 +50,26 @@ test("Custom levels should be defined, even with the wrong config levels", () =>
   expect(log.custom).toBeDefined()
 })
 
-test("Set wrong level should throw error", () => {
+test("Set wrong level config should throw error", () => {
+  expect.assertions(1)
+  var customConfig = {
+    level: "wrongLevel",
+    levels: { wrongLevel: "thisMustBeANumber" },
+  }
+  try {
+    var log = rnlogs.logger.createLogger(customConfig)
+  } catch (e) {
+    expect(e.message).toMatch("react-native-logs: [wrongLevel] wrong level config")
+  }
+})
+
+test("Set undefined level should throw error", () => {
   expect.assertions(1)
   var log = rnlogs.logger.createLogger()
   try {
-    log.setLevel("wrong")
+    log.setLevel("wrongLevel")
   } catch (e) {
-    expect(e.message).toMatch("react-native-logs: Level [wrong] not exist")
+    expect(e.message).toMatch("react-native-logs: Level [wrongLevel] not exist")
   }
 })
 
@@ -64,8 +77,21 @@ test("Call wrong level should throw error", () => {
   expect.assertions(1)
   var log = rnlogs.logger.createLogger()
   try {
-    log.log("wrong", "message")
+    log.log("wrongLevel", "message")
   } catch (e) {
-    expect(e.message).toMatch("react-native-logs: Level [wrong] not exist")
+    expect(e.message).toMatch("react-native-logs: Level [wrongLevel] not exist")
+  }
+})
+
+test("Initialize with reserved key should throw error", () => {
+  expect.assertions(1)
+  var customConfig = {
+    level: "custom",
+    levels: { custom: 0, setLevel: 1 },
+  }
+  try {
+    var log = rnlogs.logger.createLogger(customConfig)
+  } catch (e) {
+    expect(e.message).toMatch("react-native-logs: [setLevel] is a reserved key, you cannot set it as custom level")
   }
 })
