@@ -70,8 +70,8 @@ var log = logger.createLogger(config)
 react-native-logs integrates 3 preset transports and you can import it, Eg. `import { chromeConsoleAsyncTransport } from "react-native-logs"`.
 
 - **consoleSyncTransport**: Simple sync console.log
-- **chromeConsoleSyncTransport**: Sync console.log optimized for chrome console with different colors based on the power of the level: 1 - blue(info), 2 - orange(warn), 3 - red(error)
-- **chromeConsoleAsyncTransport**: Async console.log, called through setTimeout (fn, 0), optimized for chrome console with different colors based on the power of the level: 1 - blue(info), 2 - orange(warn), 3 - red(error)
+- **chromeConsoleSyncTransport**: Sync console.log optimized for chrome console with different colors based on the power of the level: 0 - default(trace), 1 - blue(info), 2 - orange(warn), 3 - red(error)
+- **chromeConsoleAsyncTransport**: Async console.log, called through setTimeout (fn, 0), optimized for chrome console with different colors based on the power of the level: 0 - default(trace), 1 - blue(info), 2 - orange(warn), 3 - red(error)
 
 New presets transports coming soon...
 
@@ -115,7 +115,7 @@ if (__DEV__) {
 
 So in production only error logs will be printed and the others will not affect performance.
 
-### Global logger in react native
+### Global logger in react-native
 
 In order to have a global logger throughout the app, i recommend using a config.js file to initialize the logger so it can be imported wherever it is needed.
 Example:
