@@ -2,8 +2,30 @@
 /**
  * REACT-NATIVE-LOGS
  * Onubo s.r.l. - www.onubo.com - info@onubo.com
- * MIT license
+ *
  * Simple logger for React-Native with custom transports and levels
+ *
+ * MIT license
+ *
+ * Copyright (c) 2019 Onubo s.r.l.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 /** Import preset transports */
@@ -14,27 +36,27 @@ exports.chromeConsoleAsyncTransport = transports_1.chromeConsoleAsyncTransport;
 /** Reserved key log string to avoid overwriting other methods or properties */
 const reservedKey = [
     'log',
-    'setLevel',
-    'getLevel',
+    'setSeverity',
+    'getSeverity',
     '_levels',
     '_level',
     '_transport'
 ];
 /** Default configuration parameters for logger */
 const defaultLogger = {
-    level: "trace",
+    severity: "debug",
     transport: transports_1.consoleSyncTransport,
     levels: {
-        trace: 0,
+        debug: 0,
         info: 1,
         warn: 2,
-        error: 3,
-    },
+        error: 3
+    }
 };
 /** Logger Main Class */
 class logs {
     constructor(config) {
-        this._level = defaultLogger.level;
+        this._level = defaultLogger.severity;
         this._transport = defaultLogger.transport;
         this._levels = defaultLogger.levels;
         /** Check if config levels property exist and set it */
@@ -42,8 +64,8 @@ class logs {
             this._levels = config.levels;
         }
         /** Check if config level property exist and set it */
-        if (config && config.level) {
-            this._level = config.level;
+        if (config && config.severity) {
+            this._level = config.severity;
         }
         if (!this._levels.hasOwnProperty(this._level)) {
             this._level = Object.keys(this._levels)[0];
@@ -80,14 +102,14 @@ class logs {
         if (this._levels[level] < this._levels[this._level]) {
             return false;
         }
-        return this._transport(msg, { power: this._levels[level], text: level }, cb);
+        return this._transport(msg, { severity: this._levels[level], text: level }, cb);
     }
     /**
-     * setLevel API
+     * setSeverity API
      * @param    {string} level   Log level to set
      * @returns  {string}         Return this._level setted
      */
-    setLevel(level) {
+    setSeverity(level) {
         if (level in this._levels) {
             this._level = level;
         }
@@ -97,10 +119,10 @@ class logs {
         return this._level;
     }
     /**
-     * getLevel API
+     * getSeverity API
      * @returns  {string}  Return current log level
      */
-    getLevel() {
+    getSeverity() {
         return this._level;
     }
 }
@@ -109,17 +131,15 @@ class logTyped extends logs {
 }
 /**
  * Create a logger object. All params will take default values if not passed.
- * each levels has its "level" power so we can filter logs with < and > operators
- * all subsequent levels to the one selected (ordered by power asc) will be exposed
+ * each levels has its level severity so we can filter logs with < and > operators
+ * all subsequent levels to the one selected (ordered by severity asc) will be exposed
  * through the transport
- * @param  {string|undefined}     level      Initialize log level power
+ * @param  {string|undefined}     severity   Initialize log level severity
  * @param  {Function|undefined}   transport  Set which transport use for logs
- * @param  {Object|undefined}      levels     Set custom log levels
+ * @param  {Object|undefined}     levels     Set custom log levels
  */
 const createLogger = (config) => {
     return new logTyped(config);
 };
-const logger = {
-    createLogger,
-};
+const logger = { createLogger };
 exports.logger = logger;

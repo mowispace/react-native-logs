@@ -8,7 +8,7 @@ const clientColors: Array<string> = [
 
 function chromeConsoleSyncTransport(
   msg: Object | string | Function,
-  level: { power: number; text: string },
+  level: { severity: number; text: string },
   cb?: () => boolean
 ) {
   /**
@@ -25,7 +25,7 @@ function chromeConsoleSyncTransport(
   }
 
   let output = `%c${new Date().toLocaleString()} | ${level.text.toUpperCase()}\n${stringMsg}`
-  console.log(output, clientColors[level.power] || clientColors[level.power])
+  console.log(output, clientColors[level.severity] || clientColors[level.severity])
 
   if (cb) {
     cb()

@@ -1,6 +1,6 @@
 function consoleSyncTransport(
   msg: Object | string | Function,
-  level: { power: number; text: string },
+  level: { severity: number; text: string },
   cb?: () => boolean
 ) {
   /**

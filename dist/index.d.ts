@@ -1,21 +1,43 @@
 /**
  * REACT-NATIVE-LOGS
  * Onubo s.r.l. - www.onubo.com - info@onubo.com
- * MIT license
+ *
  * Simple logger for React-Native with custom transports and levels
+ *
+ * MIT license
+ *
+ * Copyright (c) 2019 Onubo s.r.l.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 /** Import preset transports */
 import { consoleSyncTransport, chromeConsoleSyncTransport, chromeConsoleAsyncTransport } from "./transports";
 /** Types Declaration */
 declare type transportFunctionType = (msg: Object | string | Function, level: {
-    power: number;
+    severity: number;
     text: string;
 }, cb?: () => boolean) => boolean;
 declare type levelsType = {
     [key: string]: number;
 };
 declare type configLoggerType = {
-    level?: string;
+    severity?: string;
     transport?: transportFunctionType;
     levels?: levelsType;
 };
@@ -36,16 +58,16 @@ declare class logs {
      */
     log(level: string, msg: any, cb?: () => boolean): any;
     /**
-     * setLevel API
+     * setSeverity API
      * @param    {string} level   Log level to set
      * @returns  {string}         Return this._level setted
      */
-    setLevel(level: string): string;
+    setSeverity(level: string): string;
     /**
-     * getLevel API
+     * getSeverity API
      * @returns  {string}  Return current log level
      */
-    getLevel(): string;
+    getSeverity(): string;
 }
 /** Extend logs Class with generic types to avoid typescript errors on dynamic log methods */
 declare class logTyped extends logs {
@@ -54,4 +76,4 @@ declare class logTyped extends logs {
 declare const logger: {
     createLogger: (config?: configLoggerType | undefined) => logTyped;
 };
-export { logger, consoleSyncTransport, chromeConsoleSyncTransport, chromeConsoleAsyncTransport, };
+export { logger, consoleSyncTransport, chromeConsoleSyncTransport, chromeConsoleAsyncTransport };

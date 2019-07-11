@@ -1,5 +1,5 @@
 declare function chromeConsoleSyncTransport(msg: Object | string | Function, level: {
-    power: number;
+    severity: number;
     text: string;
 }, cb?: () => boolean): boolean;
 export { chromeConsoleSyncTransport };

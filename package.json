@@ -1,6 +1,6 @@
 {
   "name": "react-native-logs",
-  "version": "0.9.1",
+  "version": "1.0.0",
   "description": "Simple logger for React-Native with custom transports and levels",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
     "test:cov": "jest --coverage",
     "test:verbose": "jest --verbose",
     "build": "tsc",
-    "precommit": "tsc && jest"
+    "precommit": "tsc && jest --verbose --coverage"
   },
   "repository": {
     "type": "git",

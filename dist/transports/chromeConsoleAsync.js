@@ -23,7 +23,7 @@ function log(msg, level, cb) {
         stringMsg = JSON.stringify(msg);
     }
     let output = `%c${new Date().toLocaleString()} | ${level.text.toUpperCase()}\n${stringMsg}`;
-    console.log(output, clientColors[level.power] || clientColors[level.power]);
+    console.log(output, clientColors[level.severity] || clientColors[level.severity]);
     if (cb) {
         cb();
     }
