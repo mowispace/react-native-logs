@@ -33,6 +33,6 @@
   "homepage": "https://github.com/onubo/react-native-logs#readme",
   "devDependencies": {
     "jest": "^24.8.0",
-    "typescript": "^3.5.2"
+    "typescript": "^3.5.3"
   }
 }
