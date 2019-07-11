@@ -15,10 +15,8 @@ Comments and suggestions are welcome.
 ## Installation
 
 ```sh
-npm install --save https://github.com/onubo/react-native-logs/tarball/master
+npm install --save react-native-logs
 ```
-
-coming soon on NPM...
 
 ## Quick Start
 
