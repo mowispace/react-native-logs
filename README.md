@@ -17,6 +17,10 @@ Comments and suggestions are welcome.
 ```sh
 npm install --save react-native-logs
 ```
+OR
+```sh
+yarn add react-native-logs
+```
 
 ## Quick Start
 
