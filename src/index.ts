@@ -3,9 +3,9 @@
  * Onubo s.r.l. - www.onubo.com - info@onubo.com
  *
  * Simple logger for React-Native with custom transports and levels
- * 
+ *
  * MIT license
- * 
+ *
  * Copyright (c) 2019 Onubo s.r.l.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -14,10 +14,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,89 +30,88 @@
 /** Import preset transports */
 import {
   consoleSyncTransport,
-  chromeConsoleSyncTransport,
-  chromeConsoleAsyncTransport
-} from "./transports"
+  colorConsoleSync,
+  colorConsoleAsync,
+  colorConsoleAfterInteractions,
+  rnFsFileAsync,
+} from './transports';
 
 /** Types Declaration */
 type transportFunctionType = (
   msg: Object | string | Function,
-  level: { severity: number; text: string },
-  cb?: () => boolean
-) => boolean
+  level: { severity: number; text: string }
+) => void;
 
-type levelsType = { [key: string]: number }
+type levelsType = { [key: string]: number };
 
 type configLoggerType = {
-  severity?: string
-  transport?: transportFunctionType
-  levels?: levelsType
-}
+  severity?: string;
+  transport?: transportFunctionType;
+  levels?: levelsType;
+};
 
 /** Reserved key log string to avoid overwriting other methods or properties */
-const reservedKey = [
-  'log',
-  'setSeverity',
-  'getSeverity',
-  '_levels',
-  '_level',
-  '_transport'
-]
+const reservedKey = ['log', 'setSeverity', 'getSeverity', '_levels', '_level', '_transport'];
 
 /** Default configuration parameters for logger */
 const defaultLogger = {
-  severity: "debug",
+  severity: 'debug',
   transport: consoleSyncTransport,
   levels: {
     debug: 0,
     info: 1,
     warn: 2,
-    error: 3
-  }
-}
+    error: 3,
+  },
+};
 
 /** Logger Main Class */
 class logs {
-  
-  _levels: { [key: string]: number }
-  _level: string
-  _transport: transportFunctionType
+  _levels: { [key: string]: number };
+  _level: string;
+  _transport: transportFunctionType;
 
   constructor(config?: configLoggerType) {
-    this._level = defaultLogger.severity
-    this._transport = defaultLogger.transport
-    this._levels = defaultLogger.levels
+    this._level = defaultLogger.severity;
+    this._transport = defaultLogger.transport;
+    this._levels = defaultLogger.levels;
 
     /** Check if config levels property exist and set it */
-    if (config && config.levels && typeof config.levels === "object" && Object.keys(config.levels).length > 0) {
-      this._levels = config.levels
+    if (
+      config &&
+      config.levels &&
+      typeof config.levels === 'object' &&
+      Object.keys(config.levels).length > 0
+    ) {
+      this._levels = config.levels;
     }
 
     /** Check if config level property exist and set it */
     if (config && config.severity) {
-      this._level = config.severity
+      this._level = config.severity;
     }
     if (!this._levels.hasOwnProperty(this._level)) {
-      this._level = Object.keys(this._levels)[0]
+      this._level = Object.keys(this._levels)[0];
     }
 
     /** Check if config transport property exist and set it */
-    if (config && typeof config.transport === "function") {
-      this._transport = config.transport
+    if (config && typeof config.transport === 'function') {
+      this._transport = config.transport;
     }
 
     /** Bind correct log levels methods */
-    let _this: any = this
+    let _this: any = this;
     Object.keys(this._levels).forEach((level: string) => {
       if (reservedKey.indexOf(level) !== -1) {
-        throw Error(`react-native-logs: [${level}] is a reserved key, you cannot set it as custom level`)
-      } else if (typeof this._levels[level] === "number") {
-        _this[level] = this.log.bind(this, level)
+        throw Error(
+          `react-native-logs: [${level}] is a reserved key, you cannot set it as custom level`
+        );
+      } else if (typeof this._levels[level] === 'number') {
+        _this[level] = this.log.bind(this, level);
       } else {
-        throw Error(`react-native-logs: [${level}] wrong level config`)
+        throw Error(`react-native-logs: [${level}] wrong level config`);
       }
-    }, this)
-
+    }, this);
   }
 
   /**
@@ -122,14 +121,14 @@ class logs {
    * @param    {Function} cb      Optional callback after log (only if log)
    * @returns  {boolean}          Return TRUE if log otherwise FALSE
    */
-  log(level: string, msg: any, cb?: () => boolean): any {
+  log(level: string, msg: any): any {
     if (!this._levels.hasOwnProperty(level)) {
-      throw Error(`react-native-logs: Level [${level}] not exist`)
+      throw Error(`react-native-logs: Level [${level}] not exist`);
     }
     if (this._levels[level] < this._levels[this._level]) {
-      return false
+      return false;
     }
-    return this._transport(msg, { severity: this._levels[level], text: level }, cb)
+    return this._transport(msg, { severity: this._levels[level], text: level });
   }
 
   /**
@@ -139,11 +138,11 @@ class logs {
    */
   setSeverity(level: string): string {
     if (level in this._levels) {
-      this._level = level
+      this._level = level;
     } else {
-      throw Error(`react-native-logs: Level [${level}] not exist`)
+      throw Error(`react-native-logs: Level [${level}] not exist`);
     }
-    return this._level
+    return this._level;
   }
 
   /**
@@ -151,13 +150,13 @@ class logs {
    * @returns  {string}  Return current log level
    */
   getSeverity(): string {
-    return this._level
+    return this._level;
   }
 }
 
 /** Extend logs Class with generic types to avoid typescript errors on dynamic log methods */
 class logTyped extends logs {
-  [key: string]: any
+  [key: string]: any;
 }
 
 /**
@@ -170,14 +169,18 @@ class logTyped extends logs {
  * @param  {Object|undefined}     levels     Set custom log levels
  */
 const createLogger = (config?: configLoggerType) => {
-  return new logTyped(config)
-}
+  return new logTyped(config);
+};
 
-const logger = { createLogger }
+const logger = { createLogger };
 
 export {
   logger,
   consoleSyncTransport,
-  chromeConsoleSyncTransport,
-  chromeConsoleAsyncTransport
-}
+  colorConsoleSync,
+  colorConsoleAsync,
+  colorConsoleAfterInteractions,
+  rnFsFileAsync,
+  transportFunctionType,
+  configLoggerType,
+};

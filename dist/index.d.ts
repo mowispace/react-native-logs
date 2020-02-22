@@ -27,12 +27,12 @@
  * SOFTWARE.
  */
 /** Import preset transports */
-import { consoleSyncTransport, chromeConsoleSyncTransport, chromeConsoleAsyncTransport } from "./transports";
+import { consoleSyncTransport, colorConsoleSync, colorConsoleAsync, colorConsoleAfterInteractions, rnFsFileAsync } from './transports';
 /** Types Declaration */
 declare type transportFunctionType = (msg: Object | string | Function, level: {
     severity: number;
     text: string;
-}, cb?: () => boolean) => boolean;
+}) => void;
 declare type levelsType = {
     [key: string]: number;
 };
@@ -56,7 +56,7 @@ declare class logs {
      * @param    {Function} cb      Optional callback after log (only if log)
      * @returns  {boolean}          Return TRUE if log otherwise FALSE
      */
-    log(level: string, msg: any, cb?: () => boolean): any;
+    log(level: string, msg: any): any;
     /**
      * setSeverity API
      * @param    {string} level   Log level to set
@@ -76,4 +76,4 @@ declare class logTyped extends logs {
 declare const logger: {
     createLogger: (config?: configLoggerType | undefined) => logTyped;
 };
-export { logger, consoleSyncTransport, chromeConsoleSyncTransport, chromeConsoleAsyncTransport };
+export { logger, consoleSyncTransport, colorConsoleSync, colorConsoleAsync, colorConsoleAfterInteractions, rnFsFileAsync, transportFunctionType, configLoggerType, };

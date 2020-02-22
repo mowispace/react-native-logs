@@ -1,4 +1,6 @@
-import { consoleSyncTransport } from "./consoleSync";
-import { chromeConsoleSyncTransport } from "./chromeConsoleSync";
-import { chromeConsoleAsyncTransport } from "./chromeConsoleAsync";
-export { consoleSyncTransport, chromeConsoleSyncTransport, chromeConsoleAsyncTransport };
+import { consoleSyncTransport } from './consoleSync';
+import { colorConsoleSync } from './colorConsoleSync';
+import { colorConsoleAsync } from './colorConsoleAsync';
+import { colorConsoleAfterInteractions } from './colorConsoleAfterInteractions';
+import { rnFsFileAsync } from './rnFsFileAsync';
+export { consoleSyncTransport, colorConsoleSync, colorConsoleAsync, colorConsoleAfterInteractions, rnFsFileAsync, };

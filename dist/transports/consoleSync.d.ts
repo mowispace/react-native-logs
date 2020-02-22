@@ -1,5 +1,3 @@
-declare function consoleSyncTransport(msg: Object | string | Function, level: {
-    severity: number;
-    text: string;
-}, cb?: () => boolean): boolean;
+import { transportFunctionType } from '../index';
+declare const consoleSyncTransport: transportFunctionType;
 export { consoleSyncTransport };

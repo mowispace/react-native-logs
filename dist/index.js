@@ -31,27 +31,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /** Import preset transports */
 const transports_1 = require("./transports");
 exports.consoleSyncTransport = transports_1.consoleSyncTransport;
-exports.chromeConsoleSyncTransport = transports_1.chromeConsoleSyncTransport;
-exports.chromeConsoleAsyncTransport = transports_1.chromeConsoleAsyncTransport;
+exports.colorConsoleSync = transports_1.colorConsoleSync;
+exports.colorConsoleAsync = transports_1.colorConsoleAsync;
+exports.colorConsoleAfterInteractions = transports_1.colorConsoleAfterInteractions;
+exports.rnFsFileAsync = transports_1.rnFsFileAsync;
 /** Reserved key log string to avoid overwriting other methods or properties */
-const reservedKey = [
-    'log',
-    'setSeverity',
-    'getSeverity',
-    '_levels',
-    '_level',
-    '_transport'
-];
+const reservedKey = ['log', 'setSeverity', 'getSeverity', '_levels', '_level', '_transport'];
 /** Default configuration parameters for logger */
 const defaultLogger = {
-    severity: "debug",
+    severity: 'debug',
     transport: transports_1.consoleSyncTransport,
     levels: {
         debug: 0,
         info: 1,
         warn: 2,
-        error: 3
-    }
+        error: 3,
+    },
 };
 /** Logger Main Class */
 class logs {
@@ -60,7 +55,10 @@ class logs {
         this._transport = defaultLogger.transport;
         this._levels = defaultLogger.levels;
         /** Check if config levels property exist and set it */
-        if (config && config.levels && typeof config.levels === "object" && Object.keys(config.levels).length > 0) {
+        if (config &&
+            config.levels &&
+            typeof config.levels === 'object' &&
+            Object.keys(config.levels).length > 0) {
             this._levels = config.levels;
         }
         /** Check if config level property exist and set it */
@@ -71,7 +69,7 @@ class logs {
             this._level = Object.keys(this._levels)[0];
         }
         /** Check if config transport property exist and set it */
-        if (config && typeof config.transport === "function") {
+        if (config && typeof config.transport === 'function') {
             this._transport = config.transport;
         }
         /** Bind correct log levels methods */
@@ -80,7 +78,7 @@ class logs {
             if (reservedKey.indexOf(level) !== -1) {
                 throw Error(`react-native-logs: [${level}] is a reserved key, you cannot set it as custom level`);
             }
-            else if (typeof this._levels[level] === "number") {
+            else if (typeof this._levels[level] === 'number') {
                 _this[level] = this.log.bind(this, level);
             }
             else {
@@ -95,14 +93,14 @@ class logs {
      * @param    {Function} cb      Optional callback after log (only if log)
      * @returns  {boolean}          Return TRUE if log otherwise FALSE
      */
-    log(level, msg, cb) {
+    log(level, msg) {
         if (!this._levels.hasOwnProperty(level)) {
             throw Error(`react-native-logs: Level [${level}] not exist`);
         }
         if (this._levels[level] < this._levels[this._level]) {
             return false;
         }
-        return this._transport(msg, { severity: this._levels[level], text: level }, cb);
+        return this._transport(msg, { severity: this._levels[level], text: level });
     }
     /**
      * setSeverity API
