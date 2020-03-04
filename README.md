@@ -53,11 +53,12 @@ below). All params are optional and will take default values if no corresponding
 **Example with default configuration exposed:**
 
 ```javascript
-import { logger, consoleSyncTransport } from 'react-native-logs';
+import { logger } from 'react-native-logs';
+import { consoleSync } from 'react-native-logs/dist/transports/consoleSync';
 
 const defaultConfig = {
   severity: 'debug',
-  transport: consoleSyncTransport,
+  transport: consoleSync,
   levels: {
     debug: 0,
     info: 1,
@@ -72,7 +73,7 @@ var log = logger.createLogger(defaultConfig);
 | Parameter | Type     | Description                                                | Default                                     |
 | --------- | -------- | ---------------------------------------------------------- | ------------------------------------------- |
 | severity  | string   | Init logs severity (least important level you want to see) | `debug` (or the first custom level)         |
-| transport | Function | The transport function for logs (see below for presets)    | The preset transport `consoleSyncTransport` |
+| transport | Function | The transport function for logs (see below for presets)    | The preset transport `consoleSync` |
 | levels    | Object   | Set custom log levels: {name:power}                        | `{debug: 0, info: 1, warn: 2, error: 3}`    |
 
 ### Custom levels
@@ -123,11 +124,12 @@ var log = logger.createLogger(config);
 
 ### Preset transports
 
-react-native-logs includes some preset transports. You can import the one of your choice and set it
-to the logger:
+react-native-logs includes some preset transports. You can import the one of your choice from the `dist/transports` dir:
+`import { <transportName> } from 'react-native-logs/dist/transports/<transportName>';`
 
+#### Example:
 ```javascript
-import { colorConsoleAfterInteractions } from 'react-native-logs';
+import { colorConsoleAfterInteractions } from 'react-native-logs/dist/transports/colorConsoleAfterInteractions';
 
 const config = {
   transport: colorConsoleAfterInteractions,
@@ -225,7 +227,8 @@ initialize the logger so it can be imported wherever it is needed. Example:
 
 ```javascript
 //config.js
-import { logger, colorConsoleAfterInteractions } from 'react-native-logs';
+import { logger } from 'react-native-logs';
+import { colorConsoleAfterInteractions } from 'react-native-logs/dist/transports/colorConsoleAfterInteractions';
 
 const config = {
   transport: colorConsoleAfterInteractions,
@@ -254,7 +257,9 @@ To use multiple transports for logs, just create a transport function that calls
 functions as follows:
 
 ```javascript
-import { logger, colorConsoleSync, rnFsFileAsync } from 'react-native-logs';
+import { logger } from 'react-native-logs';
+import { colorConsoleSync } from 'react-native-logs/dist/transports/colorConsoleSync';
+import { rnFsFileAsync } from 'react-native-logs/dist/transports/rnFsFileAsync';
 
 var customTransport = (msg, level) => {
   // Do here whatever you want with the log message

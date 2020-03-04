@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const consoleSyncTransport = (msg, level) => {
+const consoleSync = (msg, level) => {
     /**
      * Control msg type
      * Here we use JSON.stringify so you can pass object, array, string, ecc...
@@ -19,4 +19,4 @@ const consoleSyncTransport = (msg, level) => {
     console.log(output);
     return true;
 };
-exports.consoleSyncTransport = consoleSyncTransport;
+exports.consoleSync = consoleSync;

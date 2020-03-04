@@ -1,7 +1,7 @@
 "use strict"
 var rnlogs = require("../dist/index.js")
 
-var transport = require("../dist/transports/index.js").consoleSyncTransport
+var transport = require("../dist/transports/index.js").consoleSync
 
 test("The log function should print string, objects, functions in console", () => {
   var log = rnlogs.logger.createLogger({ transport: transport })

@@ -29,12 +29,8 @@
 
 /** Import preset transports */
 import {
-  consoleSyncTransport,
   colorConsoleSync,
-  colorConsoleAsync,
-  colorConsoleAfterInteractions,
-  rnFsFileAsync,
-} from './transports';
+} from './transports/colorConsoleSync';
 
 /** Types Declaration */
 type transportFunctionType = (
@@ -56,7 +52,7 @@ const reservedKey = ['log', 'setSeverity', 'getSeverity', '_levels', '_level', '
 /** Default configuration parameters for logger */
 const defaultLogger = {
   severity: 'debug',
-  transport: consoleSyncTransport,
+  transport: colorConsoleSync,
   levels: {
     debug: 0,
     info: 1,
@@ -176,11 +172,6 @@ const logger = { createLogger };
 
 export {
   logger,
-  consoleSyncTransport,
-  colorConsoleSync,
-  colorConsoleAsync,
-  colorConsoleAfterInteractions,
-  rnFsFileAsync,
   transportFunctionType,
   configLoggerType,
 };

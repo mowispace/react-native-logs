@@ -1,3 +1,7 @@
+## [2.0.1] - 04-03-2020
+
+- Remove transport export from main index module to avoid require errors
+
 ## [2.0.0] - 23-02-2020
 
 - added preset file transport based on react-native-fs

@@ -29,18 +29,13 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 /** Import preset transports */
-const transports_1 = require("./transports");
-exports.consoleSyncTransport = transports_1.consoleSyncTransport;
-exports.colorConsoleSync = transports_1.colorConsoleSync;
-exports.colorConsoleAsync = transports_1.colorConsoleAsync;
-exports.colorConsoleAfterInteractions = transports_1.colorConsoleAfterInteractions;
-exports.rnFsFileAsync = transports_1.rnFsFileAsync;
+const colorConsoleSync_1 = require("./transports/colorConsoleSync");
 /** Reserved key log string to avoid overwriting other methods or properties */
 const reservedKey = ['log', 'setSeverity', 'getSeverity', '_levels', '_level', '_transport'];
 /** Default configuration parameters for logger */
 const defaultLogger = {
     severity: 'debug',
-    transport: transports_1.consoleSyncTransport,
+    transport: colorConsoleSync_1.colorConsoleSync,
     levels: {
         debug: 0,
         info: 1,

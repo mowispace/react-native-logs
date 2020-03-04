@@ -1,6 +1,6 @@
 import { transportFunctionType } from '../index';
 
-const consoleSyncTransport: transportFunctionType = (msg, level) => {
+const consoleSync: transportFunctionType = (msg, level) => {
   /**
    * Control msg type
    * Here we use JSON.stringify so you can pass object, array, string, ecc...
@@ -20,4 +20,4 @@ const consoleSyncTransport: transportFunctionType = (msg, level) => {
   return true;
 };
 
-export { consoleSyncTransport };
+export { consoleSync };

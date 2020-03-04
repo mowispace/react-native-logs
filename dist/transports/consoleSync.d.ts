@@ -1,3 +1,3 @@
 import { transportFunctionType } from '../index';
-declare const consoleSyncTransport: transportFunctionType;
-export { consoleSyncTransport };
+declare const consoleSync: transportFunctionType;
+export { consoleSync };

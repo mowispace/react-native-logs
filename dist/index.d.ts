@@ -26,8 +26,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/** Import preset transports */
-import { consoleSyncTransport, colorConsoleSync, colorConsoleAsync, colorConsoleAfterInteractions, rnFsFileAsync } from './transports';
 /** Types Declaration */
 declare type transportFunctionType = (msg: Object | string | Function, level: {
     severity: number;
@@ -76,4 +74,4 @@ declare class logTyped extends logs {
 declare const logger: {
     createLogger: (config?: configLoggerType | undefined) => logTyped;
 };
-export { logger, consoleSyncTransport, colorConsoleSync, colorConsoleAsync, colorConsoleAfterInteractions, rnFsFileAsync, transportFunctionType, configLoggerType, };
+export { logger, transportFunctionType, configLoggerType, };
