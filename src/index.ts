@@ -158,7 +158,7 @@ class logTyped extends logs {
 /**
  * Create a logger object. All params will take default values if not passed.
  * each levels has its level severity so we can filter logs with < and > operators
- * all subsequent levels to the one selected (ordered by severity asc) will be exposed
+ * all subsequent levels to the one selected will be exposed (ordered by severity asc) 
  * through the transport
  * @param  {string|undefined}     severity   Initialize log level severity
  * @param  {Function|undefined}   transport  Set which transport use for logs
