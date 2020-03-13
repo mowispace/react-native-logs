@@ -1,3 +1,7 @@
+## [2.0.2] - 13-03-2020
+
+- Bugfix
+
 ## [2.0.1] - 04-03-2020
 
 - Remove transport export from main index module to avoid require errors
