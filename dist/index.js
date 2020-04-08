@@ -36,6 +36,11 @@ const reservedKey = ['log', 'setSeverity', 'getSeverity', '_levels', '_level', '
 const defaultLogger = {
     severity: 'debug',
     transport: colorConsoleSync_1.colorConsoleSync,
+    transportOptions: {
+        printDate: true,
+        printLevel: true,
+        loggerName: 'rnlogs',
+    },
     levels: {
         debug: 0,
         info: 1,
@@ -49,6 +54,7 @@ class logs {
         this._level = defaultLogger.severity;
         this._transport = defaultLogger.transport;
         this._levels = defaultLogger.levels;
+        this._transportOptions = defaultLogger.transportOptions;
         /** Check if config levels property exist and set it */
         if (config &&
             config.levels &&
@@ -64,8 +70,12 @@ class logs {
             this._level = Object.keys(this._levels)[0];
         }
         /** Check if config transport property exist and set it */
-        if (config && typeof config.transport === 'function') {
+        if (config && config.transport) {
             this._transport = config.transport;
+        }
+        /** Check if config transportOptions property exist and set it */
+        if (config && config.transportOptions) {
+            this._transportOptions = Object.assign(Object.assign({}, defaultLogger.transportOptions), config.transportOptions);
         }
         /** Bind correct log levels methods */
         let _this = this;
@@ -95,7 +105,7 @@ class logs {
         if (this._levels[level] < this._levels[this._level]) {
             return false;
         }
-        return this._transport(msg, { severity: this._levels[level], text: level });
+        return this._transport(msg, { severity: this._levels[level], text: level }, this._transportOptions);
     }
     /**
      * setSeverity API
@@ -125,7 +135,7 @@ class logTyped extends logs {
 /**
  * Create a logger object. All params will take default values if not passed.
  * each levels has its level severity so we can filter logs with < and > operators
- * all subsequent levels to the one selected (ordered by severity asc) will be exposed
+ * all subsequent levels to the one selected will be exposed (ordered by severity asc)
  * through the transport
  * @param  {string|undefined}     severity   Initialize log level severity
  * @param  {Function|undefined}   transport  Set which transport use for logs

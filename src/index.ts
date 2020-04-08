@@ -35,7 +35,8 @@ import {
 /** Types Declaration */
 type transportFunctionType = (
   msg: Object | string | Function,
-  level: { severity: number; text: string }
+  level: { severity: number; text: string },
+  options: any
 ) => void;
 
 type levelsType = { [key: string]: number };
@@ -43,6 +44,7 @@ type levelsType = { [key: string]: number };
 type configLoggerType = {
   severity?: string;
   transport?: transportFunctionType;
+  transportOptions?: any;
   levels?: levelsType;
 };
 
@@ -53,6 +55,11 @@ const reservedKey = ['log', 'setSeverity', 'getSeverity', '_levels', '_level', '
 const defaultLogger = {
   severity: 'debug',
   transport: colorConsoleSync,
+  transportOptions: {
+    printDate: true,
+    printLevel: true,
+    loggerName: 'rnlogs',
+  },
   levels: {
     debug: 0,
     info: 1,
@@ -66,11 +73,13 @@ class logs {
   _levels: { [key: string]: number };
   _level: string;
   _transport: transportFunctionType;
+  _transportOptions: any;
 
   constructor(config?: configLoggerType) {
     this._level = defaultLogger.severity;
     this._transport = defaultLogger.transport;
     this._levels = defaultLogger.levels;
+    this._transportOptions = defaultLogger.transportOptions;
 
     /** Check if config levels property exist and set it */
     if (
@@ -91,8 +100,13 @@ class logs {
     }
 
     /** Check if config transport property exist and set it */
-    if (config && typeof config.transport === 'function') {
+    if (config && config.transport) {
       this._transport = config.transport;
+    }
+
+    /** Check if config transportOptions property exist and set it */
+    if (config && config.transportOptions) {
+      this._transportOptions = {...defaultLogger.transportOptions, ...config.transportOptions};
     }
 
     /** Bind correct log levels methods */
@@ -124,7 +138,7 @@ class logs {
     if (this._levels[level] < this._levels[this._level]) {
       return false;
     }
-    return this._transport(msg, { severity: this._levels[level], text: level });
+    return this._transport(msg, { severity: this._levels[level], text: level }, this._transportOptions);
   }
 
   /**

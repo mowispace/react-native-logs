@@ -1,14 +1,14 @@
 {
   "name": "react-native-logs",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Simple logger for React-Native with custom transports and levels",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
     "test:verbose": "jest --verbose",
-    "build": "tsc",
-    "precommit": "tsc && jest --verbose"
+    "build": "rm -rf dist && tsc",
+    "precommit": "rm -rf dist && tsc && jest --verbose"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
     "logs",
     "logger",
     "react-native",
+    "file",
     "custom",
     "levels",
     "console",
@@ -31,7 +32,7 @@
   },
   "homepage": "https://github.com/onubo/react-native-logs#readme",
   "devDependencies": {
-    "jest": "^25.1.0",
-    "typescript": "^3.8.2"
+    "jest": "^25.2.7",
+    "typescript": "^3.8.3"
   }
 }

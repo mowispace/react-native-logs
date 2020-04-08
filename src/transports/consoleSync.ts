@@ -1,6 +1,6 @@
 import { transportFunctionType } from '../index';
 
-const consoleSync: transportFunctionType = (msg, level) => {
+const consoleSync: transportFunctionType = (msg, level, options) => {
   /**
    * Control msg type
    * Here we use JSON.stringify so you can pass object, array, string, ecc...
@@ -14,7 +14,18 @@ const consoleSync: transportFunctionType = (msg, level) => {
     stringMsg = JSON.stringify(msg);
   }
 
-  let output = `${new Date().toLocaleString()} | ${level.text.toUpperCase()}\n${stringMsg}`;
+  let dateTxt = '';
+  let levelTxt = '';
+
+  if (options && options.printDate) {
+    dateTxt = `${new Date().toLocaleString()} | `;
+  }
+
+  if (options && options.printLevel) {
+    levelTxt = `${level.text.toUpperCase()} | `;
+  }
+
+  let output = `${dateTxt}${levelTxt}${stringMsg}`;
   console.log(output);
 
   return true;

@@ -30,13 +30,14 @@
 declare type transportFunctionType = (msg: Object | string | Function, level: {
     severity: number;
     text: string;
-}) => void;
+}, options: any) => void;
 declare type levelsType = {
     [key: string]: number;
 };
 declare type configLoggerType = {
     severity?: string;
     transport?: transportFunctionType;
+    transportOptions?: any;
     levels?: levelsType;
 };
 /** Logger Main Class */
@@ -46,6 +47,7 @@ declare class logs {
     };
     _level: string;
     _transport: transportFunctionType;
+    _transportOptions: any;
     constructor(config?: configLoggerType);
     /**
      * Log messages methods and level filter

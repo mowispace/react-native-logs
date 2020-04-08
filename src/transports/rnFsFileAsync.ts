@@ -2,7 +2,7 @@ import { transportFunctionType } from '../index';
 
 declare var require: any;
 
-const rnFsFileAsync: transportFunctionType = (msg, level) => {
+const rnFsFileAsync: transportFunctionType = (msg, level, options) => {
   /**
    * Control msg type
    * Here we use JSON.stringify so you can pass object, array, string, ecc...
@@ -16,7 +16,23 @@ const rnFsFileAsync: transportFunctionType = (msg, level) => {
     stringMsg = JSON.stringify(msg);
   }
 
-  let output = `${new Date().toLocaleString()} | ${level.text.toUpperCase()} | ${stringMsg}\n`;
+  let dateTxt = '';
+  let levelTxt = '';
+  let loggerName = 'rnlogs';
+
+  if (options && options.printDate) {
+    dateTxt = `${new Date().toLocaleString()} | `;
+  }
+
+  if (options && options.printLevel) {
+    levelTxt = `${level.text.toUpperCase()} | `;
+  }
+
+  if (options && options.loggerName && typeof options.loggerName === 'string') {
+    loggerName = options.loggerName;
+  }
+
+  let output = `${dateTxt}${levelTxt}${stringMsg}\n`;
 
   try {
     var RNFS = require('react-native-fs');
@@ -25,7 +41,7 @@ const rnFsFileAsync: transportFunctionType = (msg, level) => {
     return true;
   }
 
-  var path = RNFS.DocumentDirectoryPath + '/rnlogs.txt';
+  var path = RNFS.DocumentDirectoryPath + '/'+loggerName+'.txt';
 
   RNFS.appendFile(path, output, 'utf8')
     .then(() => {})

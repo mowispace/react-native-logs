@@ -3,9 +3,9 @@ import { transportFunctionType } from '../index';
 
 declare var InteractionManager: any;
 
-const colorConsoleAfterInteractions: transportFunctionType = (msg, level) => {
+const colorConsoleAfterInteractions: transportFunctionType = (msg, level, options) => {
   InteractionManager.runAfterInteractions(() => {
-    colorConsoleSync(msg, level);
+    colorConsoleSync(msg, level, options);
   });
 };
 

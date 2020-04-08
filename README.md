@@ -59,6 +59,11 @@ import { consoleSync } from 'react-native-logs/dist/transports/consoleSync';
 const defaultConfig = {
   severity: 'debug',
   transport: consoleSync,
+  transportOptions: {
+    printDate: true,
+    printLevel: true,
+    loggerName: 'rnlogs',
+  },
   levels: {
     debug: 0,
     info: 1,
@@ -70,11 +75,12 @@ const defaultConfig = {
 var log = logger.createLogger(defaultConfig);
 ```
 
-| Parameter | Type     | Description                                                | Default                                     |
-| --------- | -------- | ---------------------------------------------------------- | ------------------------------------------- |
-| severity  | string   | Init logs severity (least important level you want to see) | `debug` (or the first custom level)         |
-| transport | Function | The transport function for logs (see below for presets)    | The preset transport `consoleSync` |
-| levels    | Object   | Set custom log levels: {name:power}                        | `{debug: 0, info: 1, warn: 2, error: 3}`    |
+| Parameter         | Type     | Description                                                | Default                                                     |
+| ----------------- | -------- | ---------------------------------------------------------- | ----------------------------------------------------------- |
+| severity          | string   | Init logs severity (least important level you want to see) | `debug` (or the first custom level)                         |
+| transport         | Function | The transport function for logs (see below for presets)    | The preset transport `consoleSync`                          |
+| transportOptions  | Object   | Set custom options for transports                          | `{printDate: true, printLevel: true, loggerName: "rnlogs"}` |
+| levels            | Object   | Set custom log levels: {name:power}                        | `{debug: 0, info: 1, warn: 2, error: 3}`                    |
 
 ### Custom levels
 
@@ -110,13 +116,33 @@ You can define your custom trasport as follow (example in typescript):
 ```javascript
 import { logger, transportFunctionType } from 'react-native-logs';
 
-const customTransport: transportFunctionType = (msg, level) => {
+const customTransport: transportFunctionType = (msg, level, options) => {
   // Do here whatever you want with the log message
+  // You cas use any options setted in config.transportOptions
   // Eg. a console log: console.log(level.text, msg)
 };
 
 const config = {
   transport: customTransport,
+};
+
+var log = logger.createLogger(config);
+```
+
+### Transport Options
+By setting the `transportOptions` parameter you can insert new options that will be passed to transports. You can also overwrite the default options like `loggerName`, `printDate` and `printLevel`.
+
+```javascript
+import { logger } from 'react-native-logs';
+import { rnFsFileAsync } from 'react-native-logs/dist/transports/rnFsFileAsync';
+
+const config = {
+  transport: rnFsFileAsync,
+  transportOptions: {
+    printDate: true,
+    printLevel: true,
+    loggerName: 'myLogsFile',
+  },
 };
 
 var log = logger.createLogger(config);
@@ -165,10 +191,12 @@ transport.
 This transport requires the installation of `react-native-fs`
 ([install tutorial here](https://github.com/itinance/react-native-fs)), and allows you to save the
 logs on the `rnlogs.txt` file in the DocumentDirectory of ios and Android (actual file path:
-`RNFS.DocumentDirectoryPath + '/rnlogs.txt'`).  
+`RNFS.DocumentDirectoryPath + '/rnlogs.txt'`).
+NOTE: the log file name is setted with the `transportConfig.loggerName` property.
 Following
 [this example](https://github.com/itinance/react-native-fs#file-upload-android-and-ios-only) it will
 be possible to upload the file to your remote server
+
 
 ## Methods
 
@@ -261,16 +289,16 @@ import { logger } from 'react-native-logs';
 import { colorConsoleSync } from 'react-native-logs/dist/transports/colorConsoleSync';
 import { rnFsFileAsync } from 'react-native-logs/dist/transports/rnFsFileAsync';
 
-var customTransport = (msg, level) => {
+var customTransport = (msg, level, options) => {
   // Do here whatever you want with the log message
   // Eg. a console log: console.log(level.text, msg)
 };
 
 const log = logger.createLogger({
-  transport: (msg, level) => {
-    colorConsoleSync(msg, level);
-    rnFsFileAsync(msg, level);
-    customTransport(msg, level);
+  transport: (msg, level, options) => {
+    colorConsoleSync(msg, level, options);
+    rnFsFileAsync(msg, level, options);
+    customTransport(msg, level, options);
     return true;
   },
 });

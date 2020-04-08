@@ -1,3 +1,13 @@
+## [2.1.0] - 08-04-2020
+
+- added preset file transport based on react-native-fs
+- added preset transport with react-native AfterInteractions
+- bugfix
+
+### Breaking Changes
+
+- custom transport now require options parameter
+
 ## [2.0.2] - 13-03-2020
 
 - Bugfix

@@ -7,7 +7,7 @@ const clientColors = [
     'color: orange;font-weight:bold;',
     'color: indianred;font-weight:bold;',
 ];
-const colorConsoleSync = (msg, level) => {
+const colorConsoleSync = (msg, level, options) => {
     /**
      * Control msg type
      * Here we use JSON.stringify so you can pass object, array, string, ecc...
@@ -22,7 +22,15 @@ const colorConsoleSync = (msg, level) => {
     else {
         stringMsg = JSON.stringify(msg);
     }
-    let output = `%c${new Date().toLocaleString()} | ${level.text.toUpperCase()}\n${stringMsg}`;
+    let dateTxt = '';
+    let levelTxt = '';
+    if (options && options.printDate) {
+        dateTxt = `${new Date().toLocaleString()} | `;
+    }
+    if (options && options.printLevel) {
+        levelTxt = `${level.text.toUpperCase()} | `;
+    }
+    let output = `%c${dateTxt}${levelTxt}${stringMsg}`;
     console.log(output, clientColors[level.severity] || '');
     return true;
 };
