@@ -36,7 +36,7 @@ import {
 type transportFunctionType = (
   msg: Object | string | Function,
   level: { severity: number; text: string },
-  options: any
+  options?: any
 ) => void;
 
 type levelsType = { [key: string]: number };
@@ -55,11 +55,7 @@ const reservedKey = ['log', 'setSeverity', 'getSeverity', '_levels', '_level', '
 const defaultLogger = {
   severity: 'debug',
   transport: colorConsoleSync,
-  transportOptions: {
-    printDate: true,
-    printLevel: true,
-    loggerName: 'rnlogs',
-  },
+  transportOptions: null,
   levels: {
     debug: 0,
     info: 1,
@@ -79,7 +75,7 @@ class logs {
     this._level = defaultLogger.severity;
     this._transport = defaultLogger.transport;
     this._levels = defaultLogger.levels;
-    this._transportOptions = defaultLogger.transportOptions;
+    this._transportOptions = null;
 
     /** Check if config levels property exist and set it */
     if (
@@ -106,7 +102,7 @@ class logs {
 
     /** Check if config transportOptions property exist and set it */
     if (config && config.transportOptions) {
-      this._transportOptions = {...defaultLogger.transportOptions, ...config.transportOptions};
+      this._transportOptions = config.transportOptions;
     }
 
     /** Bind correct log levels methods */

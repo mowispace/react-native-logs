@@ -59,11 +59,7 @@ import { consoleSync } from 'react-native-logs/dist/transports/consoleSync';
 const defaultConfig = {
   severity: 'debug',
   transport: consoleSync,
-  transportOptions: {
-    printDate: true,
-    printLevel: true,
-    loggerName: 'rnlogs',
-  },
+  transportOptions: null,
   levels: {
     debug: 0,
     info: 1,
@@ -79,7 +75,7 @@ var log = logger.createLogger(defaultConfig);
 | ----------------- | -------- | ---------------------------------------------------------- | ----------------------------------------------------------- |
 | severity          | string   | Init logs severity (least important level you want to see) | `debug` (or the first custom level)                         |
 | transport         | Function | The transport function for logs (see below for presets)    | The preset transport `consoleSync`                          |
-| transportOptions  | Object   | Set custom options for transports                          | `{printDate: true, printLevel: true, loggerName: "rnlogs"}` |
+| transportOptions  | Object   | Set custom options for transports                          | null                                                        |
 | levels            | Object   | Set custom log levels: {name:power}                        | `{debug: 0, info: 1, warn: 2, error: 3}`                    |
 
 ### Custom levels
@@ -109,7 +105,7 @@ whatever you want. The following parameters are received by the function:
 
 - `msg: any`
 - `level: { severity: number; text: string }`
-- `cb?: () => boolean`
+- `options?: any`
 
 You can define your custom trasport as follow (example in typescript):
 
@@ -130,7 +126,7 @@ var log = logger.createLogger(config);
 ```
 
 ### Transport Options
-By setting the `transportOptions` parameter you can insert new options that will be passed to transports. You can also overwrite the default options like `loggerName`, `printDate` and `printLevel`.
+By setting the `transportOptions` parameter you can insert new options that will be passed to transports. You can also overwrite the default options like `loggerName`, `hideDate` and `hideLevel` used by preset transports (see preset transports list for details).
 
 ```javascript
 import { logger } from 'react-native-logs';
@@ -139,8 +135,8 @@ import { rnFsFileAsync } from 'react-native-logs/dist/transports/rnFsFileAsync';
 const config = {
   transport: rnFsFileAsync,
   transportOptions: {
-    printDate: true,
-    printLevel: true,
+    hideDate: true,
+    hideLevel: true,
     loggerName: 'myLogsFile',
   },
 };
@@ -164,39 +160,55 @@ const config = {
 var log = logger.createLogger(config);
 ```
 
-#### List of available preset transport:
+## List of included preset transports
 
-**consoleSync**  
+### **consoleSync**
 Simple sync `console.log`.
 
-**colorConsoleSync**  
+| name            | type      | description                           | default                    |
+| --------------- | --------- | ------------------------------------- | -------------------------- |
+| hideDate        | boolean   | hide current date time from logs      | false                      |
+| hideLevel       | boolean   | hide severity level from logs         | false                      |
+
+### **colorConsoleSync**
 Sync `console.log` with different colors based on the severity of the level (colors for chrome and
 firefox console):
-
 - 0 default (debug)
 - 1 blue (info)
 - 2 orange (warn)
 - 3 red (error)
 
-**colorConsoleAsync**  
+| name            | type      | description                           | default                    |
+| --------------- | --------- | ------------------------------------- | -------------------------- |
+| hideDate        | boolean   | hide current date time from logs      | false                      |
+| hideLevel       | boolean   | hide severity level from logs         | false                      |
+
+### **colorConsoleAsync**
 Same as `colorConsoleSync` but with `console.log` asynchronously called through
 `setTimeout (fn, 0)`, for performance optimization purpose.
 
-**colorConsoleAfterInteractions**  
+### **colorConsoleAfterInteractions**
 In order to be sure not to freeze any animations, this transport use
 `InteractionManager.runAfterInteractions` event of react-native and apply it to `colorConsoleSync`
 transport.
 
-**rnFsFileAsync**  
+### **rnFsFileAsync**
 This transport requires the installation of `react-native-fs`
 ([install tutorial here](https://github.com/itinance/react-native-fs)), and allows you to save the
-logs on the `rnlogs.txt` file in the DocumentDirectory of ios and Android (actual file path:
-`RNFS.DocumentDirectoryPath + '/rnlogs.txt'`).
-NOTE: the log file name is setted with the `transportConfig.loggerName` property.
-Following
+logs on the `<loggerPath>/<loggerName>.txt` file.
+
+Accepted Options:
+
+| name            | type      | description                           | default                    |
+| --------------- | --------- | ------------------------------------- | -------------------------- |
+| hideDate        | boolean   | hide current date time from logs      | false                      |
+| hideLevel       | boolean   | hide severity level from logs         | false                      |
+| loggerName      | string    | set logs file name                    | rnlogs                     |
+| loggerPath      | string    | set logs file path                    | RNFS.DocumentDirectoryPath |
+
+NOTE: Following
 [this example](https://github.com/itinance/react-native-fs#file-upload-android-and-ios-only) it will
 be possible to upload the file to your remote server
-
 
 ## Methods
 

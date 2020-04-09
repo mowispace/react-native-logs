@@ -14,16 +14,11 @@ const consoleSync: transportFunctionType = (msg, level, options) => {
     stringMsg = JSON.stringify(msg);
   }
 
-  let dateTxt = '';
-  let levelTxt = '';
+  let dateTxt = `${new Date().toLocaleString()} | `;
+  let levelTxt = `${level.text.toUpperCase()} | `;
 
-  if (options && options.printDate) {
-    dateTxt = `${new Date().toLocaleString()} | `;
-  }
-
-  if (options && options.printLevel) {
-    levelTxt = `${level.text.toUpperCase()} | `;
-  }
+  if (options && options.hideDate) dateTxt = '';
+  if (options && options.hideLevel) levelTxt = '';
 
   let output = `${dateTxt}${levelTxt}${stringMsg}`;
   console.log(output);

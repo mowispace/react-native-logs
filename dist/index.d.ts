@@ -30,7 +30,7 @@
 declare type transportFunctionType = (msg: Object | string | Function, level: {
     severity: number;
     text: string;
-}, options: any) => void;
+}, options?: any) => void;
 declare type levelsType = {
     [key: string]: number;
 };

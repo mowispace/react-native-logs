@@ -22,14 +22,12 @@ const colorConsoleSync = (msg, level, options) => {
     else {
         stringMsg = JSON.stringify(msg);
     }
-    let dateTxt = '';
-    let levelTxt = '';
-    if (options && options.printDate) {
-        dateTxt = `${new Date().toLocaleString()} | `;
-    }
-    if (options && options.printLevel) {
-        levelTxt = `${level.text.toUpperCase()} | `;
-    }
+    let dateTxt = `${new Date().toLocaleString()} | `;
+    let levelTxt = `${level.text.toUpperCase()} | `;
+    if (options && options.hideDate)
+        dateTxt = '';
+    if (options && options.hideLevel)
+        levelTxt = '';
     let output = `%c${dateTxt}${levelTxt}${stringMsg}`;
     console.log(output, clientColors[level.severity] || '');
     return true;

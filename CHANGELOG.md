@@ -1,18 +1,19 @@
+## [2.1.1] - 09-04-2020
+
+- added new options for transports
+- bugfix
+
 ## [2.1.0] - 08-04-2020
 
 - added possibility to pass options to transport with transportOptions property
 
-### Breaking Changes
-
-- custom transport now require options parameter
-
 ## [2.0.2] - 13-03-2020
 
-- Bugfix
+- bugfix
 
 ## [2.0.1] - 04-03-2020
 
-- Remove transport export from main index module to avoid require errors
+- remove transport export from main index module to avoid require errors
 
 ## [2.0.0] - 23-02-2020
 
@@ -31,7 +32,7 @@
 
 ## [1.0.1] - 12-07-2020
 
-- Npm release
+- npm release
 
 ## [1.0.0] - 12-07-2020
 

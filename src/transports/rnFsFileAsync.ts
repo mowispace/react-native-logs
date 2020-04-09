@@ -16,21 +16,15 @@ const rnFsFileAsync: transportFunctionType = (msg, level, options) => {
     stringMsg = JSON.stringify(msg);
   }
 
-  let dateTxt = '';
-  let levelTxt = '';
+  let dateTxt = `${new Date().toLocaleString()} | `;
+  let levelTxt = `${level.text.toUpperCase()} | `;
   let loggerName = 'rnlogs';
+  let loggerPath = RNFS.DocumentDirectoryPath;
 
-  if (options && options.printDate) {
-    dateTxt = `${new Date().toLocaleString()} | `;
-  }
-
-  if (options && options.printLevel) {
-    levelTxt = `${level.text.toUpperCase()} | `;
-  }
-
-  if (options && options.loggerName && typeof options.loggerName === 'string') {
-    loggerName = options.loggerName;
-  }
+  if (options && options.hideDate) dateTxt = '';
+  if (options && options.hideLevel) levelTxt = '';
+  if (options && options.loggerName) loggerName = options.loggerName;
+  if (options && options.loggerPath) loggerPath = options.loggerPath;
 
   let output = `${dateTxt}${levelTxt}${stringMsg}\n`;
 
@@ -41,7 +35,7 @@ const rnFsFileAsync: transportFunctionType = (msg, level, options) => {
     return true;
   }
 
-  var path = RNFS.DocumentDirectoryPath + '/'+loggerName+'.txt';
+  var path = loggerPath + '/' + loggerName + '.txt';
 
   RNFS.appendFile(path, output, 'utf8')
     .then(() => {})
