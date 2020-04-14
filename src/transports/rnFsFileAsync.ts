@@ -1,14 +1,8 @@
 import { transportFunctionType } from '../index';
 
 declare var require: any;
-declare var RNFS: any;
 
-try {
-  RNFS = require('react-native-fs');
-} catch (error) {
-  console.error('Unable to load react-native-fs, try "yarn add react-native-fs"');
-  RNFS = null;
-}
+const RNFS = require('react-native-fs');
 
 const rnFsFileAsync: transportFunctionType = (msg, level, options) => {
   if (!RNFS) return false;
