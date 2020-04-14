@@ -1,6 +1,6 @@
 {
   "name": "react-native-logs",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Simple logger for React-Native with custom transports and levels",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

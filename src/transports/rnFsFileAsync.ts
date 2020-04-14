@@ -1,14 +1,18 @@
 import { transportFunctionType } from '../index';
 
 declare var require: any;
+declare var RNFS: any;
+
+try {
+  RNFS = require('react-native-fs');
+} catch (error) {
+  console.error('Unable to load react-native-fs, try "yarn add react-native-fs"');
+  RNFS = null;
+}
 
 const rnFsFileAsync: transportFunctionType = (msg, level, options) => {
-  try {
-    var RNFS = require('react-native-fs');
-  } catch (error) {
-    console.error('Unable to load react-native-fs, try "yarn add react-native-fs"');
-    return true;
-  }
+  if (!RNFS) return false;
+
   /**
    * Control msg type
    * Here we use JSON.stringify so you can pass object, array, string, ecc...

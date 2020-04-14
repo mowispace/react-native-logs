@@ -1,6 +1,5 @@
-## [2.1.1] - 09-04-2020
+## [2.1.2] - 14-04-2020
 
-- added new options for transports
 - bugfix
 
 ## [2.1.0] - 08-04-2020
