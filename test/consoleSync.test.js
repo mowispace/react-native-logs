@@ -55,7 +55,7 @@ test("When set transportOptions={dateFormat:'iso'}, should output toISOString da
   var storeLog = inputs => (outputData += inputs)
   console["log"] = jest.fn(storeLog)
   log.debug("message")
-  var pattern = /T\d\d:\d\d:\d\d\.\d\d\dZ \| DEBUG \| message$/;
+  var pattern = /T\d\d:\d\d:\d\d\.\d\d\dZ \| DEBUG \| message$/
   expect(outputData).toMatch(pattern)
 })
 

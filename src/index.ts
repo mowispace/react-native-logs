@@ -2,7 +2,7 @@
  * REACT-NATIVE-LOGS
  * Onubo s.r.l. - www.onubo.com - info@onubo.com
  *
- * Simple logger for React-Native with custom transports and levels
+ * Performance-aware simple logger for React-Native with custom levels and transports (colored console, file writing, etc.)
  *
  * MIT license
  *
@@ -28,9 +28,7 @@
  */
 
 /** Import preset transports */
-import {
-  colorConsoleSync,
-} from './transports/colorConsoleSync';
+import { colorConsoleSync } from './transports/colorConsoleSync';
 
 /** Types Declaration */
 type transportFunctionType = (
@@ -49,13 +47,19 @@ type configLoggerType = {
 };
 
 /** Reserved key log string to avoid overwriting other methods or properties */
-const reservedKey = ['log', 'setSeverity', 'getSeverity', '_levels', '_level', '_transport'];
+const reservedKey: string[] = [
+  'log',
+  'setSeverity',
+  'getSeverity',
+  '_levels',
+  '_level',
+  '_transport',
+];
 
 /** Default configuration parameters for logger */
 const defaultLogger = {
   severity: 'debug',
   transport: colorConsoleSync,
-  transportOptions: null,
   levels: {
     debug: 0,
     info: 1,
@@ -123,18 +127,25 @@ class logs {
   /**
    * Log messages methods and level filter
    * @param    {string}   level   At witch level you want log
-   * @param    {any}      msg     Message you want to log
+   * @param    {any}      msgs    Messages you want to log (multiple agruments)
    * @param    {Function} cb      Optional callback after log (only if log)
    * @returns  {boolean}          Return TRUE if log otherwise FALSE
    */
-  log(level: string, msg: any): any {
+  log(level: string, ...msgs: any[]): any {
     if (!this._levels.hasOwnProperty(level)) {
       throw Error(`react-native-logs: Level [${level}] not exist`);
     }
     if (this._levels[level] < this._levels[this._level]) {
       return false;
     }
-    return this._transport(msg, { severity: this._levels[level], text: level }, this._transportOptions);
+    if (!msgs || !msgs[0]) {
+      return false;
+    }
+    for (let i = 0; i < msgs.length; ++i) {
+      let msg = msgs[i];
+      this._transport(msg, { severity: this._levels[level], text: level }, this._transportOptions);
+    }
+    return true;
   }
 
   /**
@@ -168,7 +179,7 @@ class logTyped extends logs {
 /**
  * Create a logger object. All params will take default values if not passed.
  * each levels has its level severity so we can filter logs with < and > operators
- * all subsequent levels to the one selected will be exposed (ordered by severity asc) 
+ * all subsequent levels to the one selected will be exposed (ordered by severity asc)
  * through the transport
  * @param  {string|undefined}     severity   Initialize log level severity
  * @param  {Function|undefined}   transport  Set which transport use for logs
@@ -180,8 +191,4 @@ const createLogger = (config?: configLoggerType) => {
 
 const logger = { createLogger };
 
-export {
-  logger,
-  transportFunctionType,
-  configLoggerType,
-};
+export { logger, transportFunctionType, configLoggerType };

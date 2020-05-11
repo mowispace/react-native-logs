@@ -5,8 +5,8 @@
 
 # react-native-logs
 
-Simple logger for React-Native with custom transports and levels. Each level has its severity: a
-number that represents its importance in ascending order from the least important to the most
+Performance-aware simple logger for React-Native with custom levels and transports (colored console, file writing, etc.). 
+Each level has its severity: a number that represents its importance in ascending order from the least important to the most
 important. Eg. _debug:0, info:1, warn:2, error:3_. By config the logger with a minium severity
 level, you will see only the logs that have it highest. Then logs will be managed by transport: the
 function that will display/save/send log messages.
@@ -143,6 +143,18 @@ const config = {
 };
 
 var log = logger.createLogger(config);
+```
+
+### Multiple Agruments
+
+Log messages can be concatenated by adding arguments to the log function:
+
+```javascript
+var errorObject = {
+  staus: 404,
+  message: 'Undefined Error',
+};
+log.error('New error occured', errorObject);
 ```
 
 ### Preset transports
