@@ -126,7 +126,7 @@ var log = logger.createLogger(config);
 ```
 
 ### Transport Options
-By setting the `transportOptions` parameter you can insert new options that will be passed to transports. You can also overwrite the default options like `loggerName`, `hideDate` and `hideLevel` used by preset transports (see preset transports list for details).
+By setting the `transportOptions` parameter you can insert new options that will be passed to transports. You can also overwrite the default options like `loggerName`, `hideDate`, `dateFormat` and `hideLevel` used by preset transports (see preset transports list for details).
 
 ```javascript
 import { logger } from 'react-native-logs';
@@ -136,6 +136,7 @@ const config = {
   transport: rnFsFileAsync,
   transportOptions: {
     hideDate: true,
+    dateFormat: 'iso',
     hideLevel: true,
     loggerName: 'myLogsFile',
   },
@@ -168,6 +169,7 @@ Simple sync `console.log`.
 | name            | type      | description                           | default                    |
 | --------------- | --------- | ------------------------------------- | -------------------------- |
 | hideDate        | boolean   | hide current date time from logs      | false                      |
+| dateFormat      | string    | choose between local, utc or iso      | local                      |
 | hideLevel       | boolean   | hide severity level from logs         | false                      |
 
 ### **colorConsoleSync**
@@ -181,6 +183,7 @@ firefox console):
 | name            | type      | description                           | default                    |
 | --------------- | --------- | ------------------------------------- | -------------------------- |
 | hideDate        | boolean   | hide current date time from logs      | false                      |
+| dateFormat      | string    | choose between local, utc or iso      | local                      |
 | hideLevel       | boolean   | hide severity level from logs         | false                      |
 
 ### **colorConsoleAsync**
@@ -202,6 +205,7 @@ Accepted Options:
 | name            | type      | description                           | default                    |
 | --------------- | --------- | ------------------------------------- | -------------------------- |
 | hideDate        | boolean   | hide current date time from logs      | false                      |
+| dateFormat      | string    | choose between local, utc or iso      | local                      |
 | hideLevel       | boolean   | hide severity level from logs         | false                      |
 | loggerName      | string    | set logs file name                    | rnlogs                     |
 | loggerPath      | string    | set logs file path                    | RNFS.DocumentDirectoryPath |
