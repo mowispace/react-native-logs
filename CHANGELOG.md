@@ -1,6 +1,12 @@
+## [2.2.0] - 11-05-2020
+
+- added log messages concatenation "log(msg1,msg2,etc...)"
+- added dataFormat transportOptions (thanks @baldur)
+- bugfix
+
 ## [2.1.2] - 14-04-2020
 
-- bugfix
+- fixed bug RNFS wrong require line (thanks @jbreuer95)
 
 ## [2.1.0] - 08-04-2020
 

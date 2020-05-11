@@ -2,7 +2,7 @@
  * REACT-NATIVE-LOGS
  * Onubo s.r.l. - www.onubo.com - info@onubo.com
  *
- * Simple logger for React-Native with custom transports and levels
+ * Performance-aware simple logger for React-Native with custom levels and transports (colored console, file writing, etc.)
  *
  * MIT license
  *
@@ -52,11 +52,11 @@ declare class logs {
     /**
      * Log messages methods and level filter
      * @param    {string}   level   At witch level you want log
-     * @param    {any}      msg     Message you want to log
+     * @param    {any}      msgs    Messages you want to log (multiple agruments)
      * @param    {Function} cb      Optional callback after log (only if log)
      * @returns  {boolean}          Return TRUE if log otherwise FALSE
      */
-    log(level: string, msg: any): any;
+    log(level: string, ...msgs: any[]): any;
     /**
      * setSeverity API
      * @param    {string} level   Log level to set
@@ -76,4 +76,4 @@ declare class logTyped extends logs {
 declare const logger: {
     createLogger: (config?: configLoggerType | undefined) => logTyped;
 };
-export { logger, transportFunctionType, configLoggerType, };
+export { logger, transportFunctionType, configLoggerType };
