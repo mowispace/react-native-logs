@@ -22,7 +22,16 @@ const colorConsoleSync = (msg, level, options) => {
     else {
         stringMsg = JSON.stringify(msg);
     }
-    let dateTxt = `${new Date().toLocaleString()} | `;
+    let dateTxt;
+    if (options && options.dateFormat === 'utc') {
+        dateTxt = `${new Date().toUTCString()} | `;
+    }
+    else if (options && options.dateFormat === 'iso') {
+        dateTxt = `${new Date().toISOString()} | `;
+    }
+    else {
+        dateTxt = `${new Date().toLocaleString()} | `;
+    }
     let levelTxt = `${level.text.toUpperCase()} | `;
     if (options && options.hideDate)
         dateTxt = '';
