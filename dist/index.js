@@ -96,9 +96,8 @@ class logs {
     /**
      * Log messages methods and level filter
      * @param    {string}   level   At witch level you want log
-     * @param    {any}      msgs    Messages you want to log (multiple agruments)
-     * @param    {Function} cb      Optional callback after log (only if log)
-     * @returns  {boolean}          Return TRUE if log otherwise FALSE
+     * @param    {any}      msgs    Messages you want to log (multiple arguments)
+     * @returns  {boolean}          Return TRUE if log otherwise FALSE or throw an error
      */
     log(level, ...msgs) {
         if (!this._levels.hasOwnProperty(level)) {

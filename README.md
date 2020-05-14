@@ -145,7 +145,7 @@ const config = {
 var log = logger.createLogger(config);
 ```
 
-### Multiple Agruments
+### Multiple Arguments
 
 Log messages can be concatenated by adding arguments to the log function:
 
@@ -327,7 +327,6 @@ const log = logger.createLogger({
     colorConsoleSync(msg, level, options);
     rnFsFileAsync(msg, level, options);
     customTransport(msg, level, options);
-    return true;
   },
 });
 ```
