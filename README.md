@@ -54,11 +54,11 @@ below). All params are optional and will take default values if no corresponding
 
 ```javascript
 import { logger } from 'react-native-logs';
-import { consoleSync } from 'react-native-logs/dist/transports/consoleSync';
+import { colorConsoleSync } from 'react-native-logs/dist/transports/colorConsoleSync';
 
 const defaultConfig = {
   severity: 'debug',
-  transport: consoleSync,
+  transport: colorConsoleSync,
   transportOptions: null,
   levels: {
     debug: 0,
@@ -74,7 +74,7 @@ var log = logger.createLogger(defaultConfig);
 | Parameter         | Type     | Description                                                | Default                                                     |
 | ----------------- | -------- | ---------------------------------------------------------- | ----------------------------------------------------------- |
 | severity          | string   | Init logs severity (least important level you want to see) | `debug` (or the first custom level)                         |
-| transport         | Function | The transport function for logs (see below for presets)    | The preset transport `consoleSync`                          |
+| transport         | Function | The transport function for logs (see below for presets)    | The preset transport `colorConsoleSync`                          |
 | transportOptions  | Object   | Set custom options for transports                          | null                                                        |
 | levels            | Object   | Set custom log levels: {name:power}                        | `{debug: 0, info: 1, warn: 2, error: 3}`                    |
 
