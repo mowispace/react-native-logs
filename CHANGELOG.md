@@ -1,3 +1,7 @@
+## [2.2.1] - 23-05-2020
+
+- added "ansiColorConsoleSync" transport to color logs on terminal (and VScode terminal)
+
 ## [2.2.0] - 11-05-2020
 
 - added log messages concatenation "log(msg1,msg2,etc...)"

@@ -1,14 +1,10 @@
 import { transportFunctionType } from '../index';
 
-/** Web Console color string constants */
-const clientColors: Array<string> = [
-  '',
-  'color: dodgerblue;font-weight:bold',
-  'color: orange;font-weight:bold;',
-  'color: indianred;font-weight:bold;',
-];
+/** Node Console color string constants */
+const clientColors: Array<string> = ['', '\x1B[94m', '\x1B[93m', '\x1B[91m'];
+const colorEnd = '\x1B[0m';
 
-const colorConsoleSync: transportFunctionType = (msg, level, options) => {
+const ansiColorConsoleSync: transportFunctionType = (msg, level, options) => {
   /**
    * Control msg type
    * Here we use JSON.stringify so you can pass object, array, string, ecc...
@@ -30,16 +26,14 @@ const colorConsoleSync: transportFunctionType = (msg, level, options) => {
   } else {
     dateTxt = `${new Date().toLocaleString()} | `;
   }
-  
+
   let levelTxt = `${level.text.toUpperCase()} | `;
 
   if (options && options.hideDate) dateTxt = '';
   if (options && options.hideLevel) levelTxt = '';
 
-  let output = `%c${dateTxt}${levelTxt}${stringMsg}`;
-  console.log(output, clientColors[level.severity] || '');
-
-  return true;
+  let output = `${dateTxt}${levelTxt}${stringMsg}`;
+  console.log(`${clientColors[level.severity]}${output}${colorEnd}`);
 };
 
-export { colorConsoleSync };
+export { ansiColorConsoleSync };

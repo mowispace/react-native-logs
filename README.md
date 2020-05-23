@@ -202,6 +202,9 @@ firefox console):
 Same as `colorConsoleSync` but with `console.log` asynchronously called through
 `setTimeout (fn, 0)`, for performance optimization purpose.
 
+### **ansiColorConsoleSync**
+Same as `colorConsoleSync` but with ansi color code for terminal console (or VScode terminal);
+
 ### **colorConsoleAfterInteractions**
 In order to be sure not to freeze any animations, this transport use
 `InteractionManager.runAfterInteractions` event of react-native and apply it to `colorConsoleSync`
