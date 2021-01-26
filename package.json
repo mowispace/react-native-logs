@@ -1,7 +1,7 @@
 {
   "name": "react-native-logs",
   "version": "3.0.0",
-  "description": "Performance-aware simple logger for React-Native with custom levels and transports (colored console, file writing, etc.)",
+  "description": "Performance-aware simple logger for React-Native with Namespace, custom levels and custom transports (colored console, file writing, etc.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
