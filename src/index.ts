@@ -1,12 +1,12 @@
 /**
  * REACT-NATIVE-LOGS
- * Onubo s.r.l. - www.onubo.com - info@onubo.com
+ * Alessandro Bottamedi - a.bottamedi@me.com
  *
  * Performance-aware simple logger for React-Native with custom levels and transports (colored console, file writing, etc.)
  *
  * MIT license
  *
- * Copyright (c) 2019 Onubo s.r.l.
+ * Copyright (c) 2021 Alessandro Bottamedi.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,64 +28,116 @@
  */
 
 /** Import preset transports */
-import { colorConsoleSync } from './transports/colorConsoleSync';
+import { consoleTransport } from "./transports/consoleTransport";
+import { fileAsyncTransport } from "./transports/fileAsyncTransport";
+import { sentryTransport } from "./transports/sentryTransport";
+
+let asyncFunc: (cb: Function) => any;
+try {
+  const InteractionManager = require("react-native").InteractionManager;
+  asyncFunc = InteractionManager.runAfterInteractions;
+} catch (e) {
+  asyncFunc = (cb: Function) => {
+    setTimeout(() => {
+      return cb();
+    }, 0);
+  };
+}
 
 /** Types Declaration */
-type transportFunctionType = (
-  msg: Object | string | Function,
-  level: { severity: number; text: string },
-  options?: any
-) => void;
-
+type transportFunctionType = (props: {
+  msg: any;
+  rawMsg: any;
+  level: { severity: number; text: string };
+  extension?: string | null;
+  options?: any;
+}) => any;
 type levelsType = { [key: string]: number };
-
+type logMethodType = (
+  level: string,
+  extension: string | null,
+  ...msgs: any[]
+) => boolean;
+type levelLogMethodType = (...msgs: any[]) => boolean;
+type extendedLogType = { [key: string]: levelLogMethodType | any };
 type configLoggerType = {
   severity?: string;
   transport?: transportFunctionType;
   transportOptions?: any;
   levels?: levelsType;
+  async?: boolean;
+  asyncFunc?: Function;
+  dateFormat?: "time" | "local" | "utc" | "iso";
+  printLevel?: boolean;
+  printDate?: boolean;
+  enabled?: boolean;
+  enabledExtensions?: string[] | string | null;
 };
 
 /** Reserved key log string to avoid overwriting other methods or properties */
 const reservedKey: string[] = [
-  'log',
-  'setSeverity',
-  'getSeverity',
-  '_levels',
-  '_level',
-  '_transport',
+  "extend",
+  "enable",
+  "disable",
+  "getExtensions",
+  "setSeverity",
+  "getSeverity",
 ];
 
 /** Default configuration parameters for logger */
 const defaultLogger = {
-  severity: 'debug',
-  transport: colorConsoleSync,
+  severity: "debug",
+  transport: consoleTransport,
+  transportOptions: {},
   levels: {
     debug: 0,
     info: 1,
     warn: 2,
     error: 3,
   },
+  async: false,
+  asyncFunc: asyncFunc,
+  dateFormat: "time",
+  printLevel: true,
+  printDate: true,
+  enabled: true,
+  enabledExtensions: null,
 };
 
 /** Logger Main Class */
 class logs {
-  _levels: { [key: string]: number };
-  _level: string;
-  _transport: transportFunctionType;
-  _transportOptions: any;
+  private _levels: { [key: string]: number };
+  private _level: string;
+  private _transport: transportFunctionType;
+  private _transportOptions: any;
+  private _asyncFunc: Function;
+  private _async: boolean;
+  private _dateFormat: string;
+  private _printLevel: boolean;
+  private _printDate: boolean;
+  private _enabled: boolean;
+
+  private _enabledExtensions: { [key: string]: boolean } | null = null;
+  private _extensions: string[] = [];
+  private _extendedLogs: { [key: string]: extendedLogType } = {};
 
   constructor(config?: configLoggerType) {
+    this._levels = defaultLogger.levels;
     this._level = defaultLogger.severity;
     this._transport = defaultLogger.transport;
-    this._levels = defaultLogger.levels;
     this._transportOptions = null;
+    this._asyncFunc = defaultLogger.asyncFunc;
+    this._async = defaultLogger.async;
+    this._dateFormat = defaultLogger.dateFormat;
+    this._printLevel = defaultLogger.printLevel;
+    this._printDate = defaultLogger.printDate;
+    this._enabled = defaultLogger.enabled;
 
     /** Check if config levels property exist and set it */
     if (
       config &&
       config.levels &&
-      typeof config.levels === 'object' &&
+      typeof config.levels === "object" &&
       Object.keys(config.levels).length > 0
     ) {
       this._levels = config.levels;
@@ -106,68 +158,289 @@ class logs {
 
     /** Check if config transportOptions property exist and set it */
     if (config && config.transportOptions) {
-      this._transportOptions = config.transportOptions;
+      this._transportOptions = {
+        ...defaultLogger.transportOptions,
+        ...config.transportOptions,
+      };
+    }
+
+    /** Check if config asyncFunc property exist and set it */
+    if (config && config.asyncFunc) {
+      this._asyncFunc = config.asyncFunc;
+    }
+
+    /** Check if config async property exist and set it */
+    if (config && typeof config.async !== "undefined") {
+      this._async = config.async;
+    }
+
+    /** Check if config dateFormat property exist and set it */
+    if (config && config.dateFormat) {
+      this._dateFormat = config.dateFormat;
+    }
+
+    /** Check if config printLevel property exist and set it */
+    if (config && typeof config.printLevel !== "undefined") {
+      this._printLevel = config.printLevel;
+    }
+
+    /** Check if config printDate property exist and set it */
+    if (config && typeof config.printDate !== "undefined") {
+      this._printDate = config.printDate;
+    }
+
+    /** Check if config enabled property exist and set it */
+    if (config && typeof config.enabled !== "undefined") {
+      this._enabled = config.enabled;
+    }
+
+    /** Check if config printDate property exist and set it */
+    if (config && config.enabledExtensions) {
+      if (Array.isArray(config.enabledExtensions)) {
+        for (let i = 0; i < config.enabledExtensions.length; ++i) {
+          this.enable(config.enabledExtensions[i]);
+        }
+      } else if (typeof config.enabledExtensions === "string") {
+        this.disable(config.enabledExtensions);
+      }
     }
 
     /** Bind correct log levels methods */
     let _this: any = this;
     Object.keys(this._levels).forEach((level: string) => {
+      if (typeof level !== "string") {
+        throw Error(`react-native-logs: levels must be strings`);
+      }
+      if (level[0] === "_") {
+        throw Error(
+          `react-native-logs: keys with first char "_" is reserved and cannot be used as levels`
+        );
+      }
       if (reservedKey.indexOf(level) !== -1) {
         throw Error(
           `react-native-logs: [${level}] is a reserved key, you cannot set it as custom level`
         );
-      } else if (typeof this._levels[level] === 'number') {
-        _this[level] = this.log.bind(this, level);
+      }
+      if (typeof this._levels[level] === "number") {
+        _this[level] = this._log.bind(this, level, null);
       } else {
         throw Error(`react-native-logs: [${level}] wrong level config`);
       }
     }, this);
   }
 
-  /**
-   * Log messages methods and level filter
-   * @param    {string}   level   At witch level you want log
-   * @param    {any}      msgs    Messages you want to log (multiple arguments)
-   * @returns  {boolean}          Return TRUE if log otherwise FALSE or throw an error
-   */
-  log(level: string, ...msgs: any[]): any {
-    if (!this._levels.hasOwnProperty(level)) {
-      throw Error(`react-native-logs: Level [${level}] not exist`);
+  /** Log messages methods and level filter */
+  private _log: logMethodType = (level, extension, ...msgs) => {
+    if (this._async) {
+      return this._asyncFunc(() => {
+        this._sendToTransport(level, extension, msgs);
+      });
+    } else {
+      return this._sendToTransport(level, extension, msgs);
     }
+  };
+
+  private _sendToTransport = (
+    level: string,
+    extension: string | null,
+    msgs: any
+  ) => {
+    if (!this._enabled) return false;
+    if (!this._isLevelEnabled(level)) {
+      return false;
+    }
+    if (extension && !this._isExtensionEnabled(extension)) {
+      return false;
+    }
+    let msg = this._formatMsg(level, extension, msgs);
+    let transportProps = {
+      msg: msg,
+      rawMsg: msgs,
+      level: { severity: this._levels[level], text: level },
+      extension: extension,
+      options: this._transportOptions,
+    };
+    this._transport(transportProps);
+    return true;
+  };
+
+  private _formatMsg = (
+    level: string,
+    extension: string | null,
+    msgs: any
+  ): string => {
+    let nameTxt: string = "";
+    if (extension) {
+      nameTxt = `${extension} | `;
+    }
+
+    let dateTxt: string = "";
+    if (this._printDate) {
+      switch (this._dateFormat) {
+        case "time":
+          dateTxt = `${new Date().toLocaleTimeString()} | `;
+          break;
+        case "local":
+          dateTxt = `${new Date().toLocaleString()} | `;
+          break;
+        case "utc":
+          dateTxt = `${new Date().toUTCString()} | `;
+          break;
+        case "iso":
+          dateTxt = `${new Date().toISOString()} | `;
+          break;
+        default:
+          break;
+      }
+    }
+
+    let levelTxt = "";
+    if (this._printLevel) {
+      levelTxt = `${level.toUpperCase()} | `;
+    }
+
+    let stringMsg: string = dateTxt + nameTxt + levelTxt;
+
+    if (Array.isArray(msgs)) {
+      for (let i = 0; i < msgs.length; ++i) {
+        let msg = msgs[i];
+        if (typeof msg === "string") {
+          stringMsg += msg;
+        } else if (typeof msg === "function") {
+          stringMsg += "[function]";
+        } else if (msgs[i] && msgs[i].stack && msgs[i].message) {
+          stringMsg += msgs[i].message;
+        } else {
+          try {
+            stringMsg += JSON.stringify(msg);
+          } catch (error) {
+            stringMsg += "Undefined Error";
+          }
+        }
+        if (msgs.length > i + 1) {
+          stringMsg += " ";
+        }
+      }
+    } else if (typeof msgs === "string") {
+      stringMsg += msgs;
+    } else if (typeof msgs === "function") {
+      stringMsg += "[function]";
+    } else if (msgs && msgs.stack && msgs.message) {
+      stringMsg += msgs.message;
+    } else if (msgs) {
+      try {
+        stringMsg += JSON.stringify(msgs);
+      } catch (error) {
+        stringMsg += "Undefined Error";
+      }
+    }
+
+    return stringMsg;
+  };
+
+  /** Return true if level is enabled */
+  private _isLevelEnabled = (level: string): boolean => {
     if (this._levels[level] < this._levels[this._level]) {
       return false;
     }
-    if (!msgs || !msgs[0]) {
-      return false;
-    }
-    for (let i = 0; i < msgs.length; ++i) {
-      let msg = msgs[i];
-      this._transport(msg, { severity: this._levels[level], text: level }, this._transportOptions);
-    }
     return true;
-  }
+  };
 
-  /**
-   * setSeverity API
-   * @param    {string} level   Log level to set
-   * @returns  {string}         Return this._level setted
-   */
-  setSeverity(level: string): string {
+  /** Return true if extension is enabled */
+  private _isExtensionEnabled = (extension: string): boolean => {
+    if (!this._enabledExtensions || !this._enabledExtensions[extension])
+      return false;
+    return true;
+  };
+
+  /** Extend logger with a new extension */
+  extend = (extension: string): extendedLogType => {
+    if (this._extensions.includes(extension)) {
+      return this._extendedLogs[extension];
+    }
+    this._extendedLogs[extension] = {};
+    this._extensions.push(extension);
+    let extendedLog = this._extendedLogs[extension];
+    Object.keys(this._levels).forEach((level: string) => {
+      extendedLog[level] = (...msgs: any) => {
+        this._log(level, extension, ...msgs);
+      };
+      extendedLog["extend"] = (extension: string) => {
+        throw Error(
+          `react-native-logs: you cannot extend a logger from an already extended logger`
+        );
+      };
+      extendedLog["enable"] = (extension: string) => {
+        throw Error(
+          `react-native-logs: You cannot enable a logger from extended logger`
+        );
+      };
+      extendedLog["disable"] = (extension: string) => {
+        throw Error(
+          `react-native-logs: You cannot disable a logger from extended logger`
+        );
+      };
+      extendedLog["getExtensions"] = () => {
+        throw Error(
+          `react-native-logs: You cannot get extensions from extended logger`
+        );
+      };
+      extendedLog["setSeverity"] = (level: string) => {
+        throw Error(
+          `react-native-logs: You cannot set severity from extended logger`
+        );
+      };
+      extendedLog["getSeverity"] = () => {
+        throw Error(
+          `react-native-logs: You cannot get severity from extended logger`
+        );
+      };
+    });
+    return extendedLog;
+  };
+
+  /** Enable an extension */
+  enable = (extension: string): boolean => {
+    if (!extension) {
+      this._enabled = true;
+      return true;
+    }
+    if (!this._enabledExtensions) this._enabledExtensions = {};
+    this._enabled = true;
+    this._enabledExtensions[extension] = true;
+    return true;
+  };
+
+  /** Disable an extension */
+  disable = (extension: string): boolean => {
+    if (!extension) {
+      this._enabled = false;
+      return true;
+    }
+    if (!this._enabledExtensions) return true;
+    this._enabledExtensions[extension] = false;
+    return true;
+  };
+
+  /** Return all created extensions */
+  getExtensions = (): string[] => {
+    return this._extensions;
+  };
+
+  /** Set log severity API */
+  setSeverity = (level: string): string => {
     if (level in this._levels) {
       this._level = level;
     } else {
       throw Error(`react-native-logs: Level [${level}] not exist`);
     }
     return this._level;
-  }
+  };
 
-  /**
-   * getSeverity API
-   * @returns  {string}  Return current log level
-   */
-  getSeverity(): string {
+  /** Get current log severity API */
+  getSeverity = (): string => {
     return this._level;
-  }
+  };
 }
 
 /** Extend logs Class with generic types to avoid typescript errors on dynamic log methods */
@@ -180,9 +453,6 @@ class logTyped extends logs {
  * each levels has its level severity so we can filter logs with < and > operators
  * all subsequent levels to the one selected will be exposed (ordered by severity asc)
  * through the transport
- * @param  {string|undefined}     severity   Initialize log level severity
- * @param  {Function|undefined}   transport  Set which transport use for logs
- * @param  {Object|undefined}     levels     Set custom log levels
  */
 const createLogger = (config?: configLoggerType) => {
   return new logTyped(config);
@@ -190,4 +460,11 @@ const createLogger = (config?: configLoggerType) => {
 
 const logger = { createLogger };
 
-export { logger, transportFunctionType, configLoggerType };
+export {
+  logger,
+  transportFunctionType,
+  configLoggerType,
+  consoleTransport,
+  fileAsyncTransport,
+  sentryTransport,
+};

@@ -1,6 +1,6 @@
 {
   "name": "react-native-logs",
-  "version": "2.2.1",
+  "version": "3.0.0",
   "description": "Performance-aware simple logger for React-Native with custom levels and transports (colored console, file writing, etc.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +23,8 @@
     "custom",
     "levels",
     "console",
-    "debug"
+    "debug",
+    "namespace"
   ],
   "author": "Onubo s.r.l. <www.onubo.com>",
   "license": "MIT",
@@ -32,7 +33,7 @@
   },
   "homepage": "https://github.com/onubo/react-native-logs#readme",
   "devDependencies": {
-    "jest": "^25.2.7",
-    "typescript": "^3.8.3"
+    "jest": "^26.6.3",
+    "typescript": "^4.1.3"
   }
 }

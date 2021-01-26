@@ -1,3 +1,19 @@
+## [3.0.0] - 26-01-2021
+
+This new version introduces many changes, the log management has been modified to allow the creation of namespaced loggers and to simplify the creation of custom transports.
+The creation of namespaced loggers is done via the "extend" function on the main logger. This makes it possible to enable or disable logging only for certain parts of the app. The extend function is for now only enabled at the first level, it is not possible to extend an already extended logger in order to avoid loops in the controls that would affect performance.
+
+- complete refactoring
+- added namespaced logs via extend function!
+- expofs support for file transport (beta)
+- sentry transport
+- logs concatenation on single line
+- bugfix
+#### BREAKING CHANGES
+
+To upgrade to version 3 you need to change the logger creation. The default transports have now been reduced, but they support the same functions as before but through options, e.g. to get asynchronous logs you can set the async:true option instead of importing a special transport. 
+Custom transports also need to change, they now receive a single "props" parameter containing everything you need, the message formatting has been moved out of the transport so you can just output it. It is still possible to format the logs at will. Please refer to the new documentation for details.
+
 ## [2.2.1] - 23-05-2020
 
 - added "ansiColorConsoleSync" transport to color logs on terminal (and VScode terminal)
