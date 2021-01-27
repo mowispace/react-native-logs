@@ -7,6 +7,7 @@
   "scripts": {
     "test": "jest",
     "test:verbose": "jest --verbose",
+    "test:cov": "jest --coverage",
     "build": "rm -rf dist && tsc",
     "precommit": "rm -rf dist && tsc && jest --verbose"
   },
