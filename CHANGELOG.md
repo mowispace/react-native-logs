@@ -1,3 +1,7 @@
+## [3.0.2] - 27-01-2021
+
+- fixed web colors in console transport
+
 ## [3.0.1] - 27-01-2021
 
 - fixed ansi colors in console transport
