@@ -1,3 +1,7 @@
+## [3.0.3] - 12-02-2021
+
+- removed EncodingType reference on fileAsyncTransport
+
 ## [3.0.2] - 27-01-2021
 
 - fixed web colors in console transport
