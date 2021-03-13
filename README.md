@@ -261,7 +261,7 @@ Send logs to [Sentry](https://github.com/getsentry/sentry-react-native). This tr
 
 | name   | type   | description                                  | default |
 | ------ | ------ | -------------------------------------------- | ------- |
-| SENTRY | Objcet | MANDATORY, sentry instance for the transport | `null`  |
+| SENTRY | Object | MANDATORY, sentry instance for the transport | `null`  |
 
 #### Example:
 
