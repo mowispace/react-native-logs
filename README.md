@@ -373,7 +373,7 @@ In reacly-native, after you have create your logger, you can set to log only in 
 the `__DEV__` as follows:
 
 ```javascript
-import { logger, fileAsyncTransport } from "react-native-logs";
+import { logger, consoleTransport, fileAsyncTransport } from "react-native-logs";
 import RNFS from "react-native-fs";
 
 const config = {
@@ -398,7 +398,7 @@ initialize the logger so it can be imported wherever it is needed. Example:
 
 ```javascript
 //config.js
-import { logger, fileAsyncTransport } from "react-native-logs";
+import { logger, consoleTransport, fileAsyncTransport } from "react-native-logs";
 import RNFS from "react-native-fs";
 
 const config = {
