@@ -367,7 +367,7 @@ var newseverity = log.getSeverity(); // newseverity = error
 
 ## Usage Tips
 
-### Logs only in dvelopment mode
+### Logs only in development mode
 
 In reacly-native, after you have create your logger, you can set to log only in development using
 the `__DEV__` as follows:
