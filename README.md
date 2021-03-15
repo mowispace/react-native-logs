@@ -261,7 +261,7 @@ Send logs to [Sentry](https://github.com/getsentry/sentry-react-native). This tr
 
 | name   | type   | description                                  | default |
 | ------ | ------ | -------------------------------------------- | ------- |
-| SENTRY | Objcet | MANDATORY, sentry instance for the transport | `null`  |
+| SENTRY | Object | MANDATORY, sentry instance for the transport | `null`  |
 
 #### Example:
 
@@ -367,13 +367,13 @@ var newseverity = log.getSeverity(); // newseverity = error
 
 ## Usage Tips
 
-### Logs only in dvelopment mode
+### Logs only in development mode
 
 In reacly-native, after you have create your logger, you can set to log only in development using
 the `__DEV__` as follows:
 
 ```javascript
-import { logger, fileAsyncTransport } from "react-native-logs";
+import { logger, consoleTransport, fileAsyncTransport } from "react-native-logs";
 import RNFS from "react-native-fs";
 
 const config = {
@@ -398,7 +398,7 @@ initialize the logger so it can be imported wherever it is needed. Example:
 
 ```javascript
 //config.js
-import { logger, fileAsyncTransport } from "react-native-logs";
+import { logger, consoleTransport, fileAsyncTransport } from "react-native-logs";
 import RNFS from "react-native-fs";
 
 const config = {
