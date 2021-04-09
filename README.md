@@ -240,7 +240,7 @@ const config = {
     /* EXPO:
      * FS: FileSystem,
      */
-    fileLogName: `logs_${date}-${month}-${year}`, // Create a new file every day
+    fileName: `logs_${date}-${month}-${year}`, // Create a new file every day
   },
 };
 
