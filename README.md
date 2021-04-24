@@ -410,7 +410,7 @@ const config = {
   },
 };
 
-var LOG = logger.createLogger();
+var LOG = logger.createLogger(config);
 
 export { LOG };
 ```
