@@ -1,3 +1,8 @@
+## [3.0.4] - 04-06-2021
+
+- queue management to avoid race conditions problems with ExpoFS
+- minor bugfix
+
 ## [3.0.3] - 12-02-2021
 
 - removed EncodingType reference on fileAsyncTransport

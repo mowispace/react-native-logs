@@ -5,7 +5,7 @@
 
 # react-native-logs
 
-Performance-aware simple logger for React-Native with custom levels and transports (colored console,
+Performance-aware simple logger for React-Native and Expo (managed and bare) with custom levels and transports (colored console,
 file writing, etc.). Each level has its severity: a number that represents its importance in
 ascending order from the least important to the most important. Eg. _debug:0, info:1, warn:2,
 error:3_. By config the logger with a minium severity level, you will see only the logs that have it
@@ -29,6 +29,12 @@ OR
 
 ```sh
 yarn add react-native-logs
+```
+
+OR
+
+```sh
+expo install react-native-logs
 ```
 
 ## Quick Start
@@ -207,7 +213,7 @@ Print the logs with a formatted `console.log` output.
 
 ### **fileAsyncTransport**
 
-This transport requires the installation of `react-native-fs`([install tutorial here](https://github.com/itinance/react-native-fs)) or `expo-file-system`(beta), and allows you to save the
+This transport requires the installation of `react-native-fs`([install tutorial here](https://github.com/itinance/react-native-fs)) or `expo-file-system`, and allows you to save the
 logs on the `<filePath>/<fileName>.txt` file.
 
 #### Accepted Options:
