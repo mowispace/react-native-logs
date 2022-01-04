@@ -1,23 +1,27 @@
-'use strict';
-var rnlogs = require('../dist/index.js');
+"use strict";
+var rnlogs = require("../dist/index.js");
 
-var transport = require('../dist/transports/consoleTransport.js').consoleTransport;
+var transport =
+  require("../dist/transports/consoleTransport.js").consoleTransport;
 
-test('The log function should print string, objects, functions in console', () => {
-  var log = rnlogs.logger.createLogger({ transport: transport,printDate: false,
-    printLevel: false, });
-  var outputData = '';
-  var outputExp= '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  log.debug('message');
+test("The log function should print string, beutified objects and functions in console", () => {
+  var log = rnlogs.logger.createLogger({
+    transport: transport,
+    printDate: false,
+    printLevel: false,
+  });
+  var outputData = "";
+  var outputExp = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.debug("message");
   outputExp = `message`;
   expect(outputData).toBe(outputExp);
-  outputData = '';
-  log.debug({ message: 'message' });
-  outputExp = `{\"message\":\"message\"}`;
+  outputData = "";
+  log.debug({ message: "message" });
+  outputExp = `{\n  \"message\": \"message\"\n}`;
   expect(outputData).toBe(outputExp);
-  outputData = '';
+  outputData = "";
   log.debug(() => {
     return true;
   });
@@ -25,146 +29,154 @@ test('The log function should print string, objects, functions in console', () =
   expect(outputData).toBe(outputExp);
 });
 
-test('When set higher power level, the lover power level, should not print in console', () => {
+test("When set higher power level, the lover power level, should not print in console", () => {
   var log = rnlogs.logger.createLogger({ transport: transport });
-  log.setSeverity('info');
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  log.debug('message');
+  log.setSeverity("info");
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.debug("message");
   expect(outputData.length).toBe(0);
 });
 
-test('When set {enabled:false}, should not print in console', () => {
-  var log = rnlogs.logger.createLogger({ transport: transport, enabled:false });
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  log.debug('message');
+test("When set {enabled:false}, should not print in console", () => {
+  var log = rnlogs.logger.createLogger({
+    transport: transport,
+    enabled: false,
+  });
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.debug("message");
   expect(outputData.length).toBe(0);
 });
 
-test('When set {enabled:false, printDate:false} and the call log.enable(), should print expected output', () => {
-  var log = rnlogs.logger.createLogger({ transport: transport,printDate:false, enabled:false });
+test("When set {enabled:false, printDate:false} and the call log.enable(), should print expected output", () => {
+  var log = rnlogs.logger.createLogger({
+    transport: transport,
+    printDate: false,
+    enabled: false,
+  });
   log.enable();
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  log.debug('message');
-  var levelTxt = `DEBUG | `;
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.debug("message");
+  var levelTxt = `DEBUG : `;
   var outputExp = `${levelTxt}message`;
   expect(outputData).toBe(outputExp);
 });
 
-test('When set {printDate:false, printLevel:false} and empty msg, should not print in console', () => {
+test("When set {printDate:false, printLevel:false} and empty msg, should not print in console", () => {
   var log = rnlogs.logger.createLogger({
     transport: transport,
     printDate: false,
     printLevel: false,
   });
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  log.debug('');
-  expect(outputData).toBe('');
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.debug("");
+  expect(outputData).toBe("");
 });
 
 test("When set {dateFormat:'utc'}, should output toUTCString dateformat", () => {
   var log = rnlogs.logger.createLogger({
     transport: transport,
-    dateFormat: 'utc',
+    dateFormat: "utc",
   });
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  log.debug('message');
-  var pattern = /\d\d:\d\d:\d\d GMT \| DEBUG \| message$/;
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.debug("message");
+  var pattern = /\d\d:\d\d:\d\d GMT \| DEBUG \: message$/;
   expect(outputData).toMatch(pattern);
 });
 
 test("When set {dateFormat:'iso'}, should output toISOString dateformat", () => {
   var log = rnlogs.logger.createLogger({
     transport: transport,
-    dateFormat: 'iso',
+    dateFormat: "iso",
   });
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  log.debug('message');
-  var pattern = /T\d\d:\d\d:\d\d\.\d\d\dZ \| DEBUG \| message$/;
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.debug("message");
+  var pattern = /T\d\d:\d\d:\d\d\.\d\d\dZ \| DEBUG \: message$/;
   expect(outputData).toMatch(pattern);
 });
 
-test('The log function should print expected output', () => {
+test("The log function should print expected output", () => {
   var log = rnlogs.logger.createLogger({
     transport: transport,
     printDate: false,
   });
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  log.debug('message');
-  var levelTxt = `DEBUG | `;
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.debug("message");
+  var levelTxt = `DEBUG : `;
   var outputExp = `${levelTxt}message`;
   expect(outputData).toBe(outputExp);
 });
 
-test('The log function should print concatenated expected output', () => {
+test("The log function should print concatenated expected output", () => {
   var log = rnlogs.logger.createLogger({
     transport: transport,
     printDate: false,
   });
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  log.debug('message', 'message2');
-  var levelTxt = `DEBUG | `;
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.debug("message", "message2");
+  var levelTxt = `DEBUG : `;
   var outputExp = `${levelTxt}message message2`;
   expect(outputData).toBe(outputExp);
 });
 
-test('The enabled namespaced log function should print expected output', () => {
+test("The enabled namespaced log function should print expected output", () => {
   var log = rnlogs.logger.createLogger({
     transport: transport,
     printDate: false,
-    enabledExtensions:['NAMESPACE']
+    enabledExtensions: ["NAMESPACE"],
   });
-  const namespacedLog = log.extend('NAMESPACE');
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  namespacedLog.debug('message');
-  var levelTxt = `NAMESPACE | DEBUG | `;
+  const namespacedLog = log.extend("NAMESPACE");
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  namespacedLog.debug("message");
+  var levelTxt = `NAMESPACE | DEBUG : `;
   var outputExp = `${levelTxt}message`;
   expect(outputData).toBe(outputExp);
 });
 
-test('The enabled namespaced log function should print concatenated expected output', () => {
+test("The enabled namespaced log function should print concatenated expected output", () => {
   var log = rnlogs.logger.createLogger({
     transport: transport,
     printDate: false,
-    enabledExtensions:['NAMESPACE']
+    enabledExtensions: ["NAMESPACE"],
   });
-  const namespacedLog = log.extend('NAMESPACE');
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  namespacedLog.debug('message','message2');
-  var levelTxt = `NAMESPACE | DEBUG | `;
+  const namespacedLog = log.extend("NAMESPACE");
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  namespacedLog.debug("message", "message2");
+  var levelTxt = `NAMESPACE | DEBUG : `;
   var outputExp = `${levelTxt}message message2`;
   expect(outputData).toBe(outputExp);
 });
 
-test('The disabled namespaced log function should not print', () => {
+test("The disabled namespaced log function should not print", () => {
   var log = rnlogs.logger.createLogger({
     transport: transport,
     printDate: false,
+    enabledExtensions: ["NAMESPACE2"],
   });
-  const namespacedLog = log.extend('NAMESPACE');
-  var outputData = '';
-  var storeLog = inputs => (outputData += inputs);
-  console['log'] = jest.fn(storeLog);
-  namespacedLog.debug('message');
+  const namespacedLog = log.extend("NAMESPACE");
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  namespacedLog.debug("message");
   var outputExp = ``;
   expect(outputData).toBe(outputExp);
 });

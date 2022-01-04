@@ -1,3 +1,21 @@
+## [4.0.0] - 03-01-2022
+
+In this new major update many of the features requested in the previous issues have been fixed, introduced or improved:
+
+- reversed the extension mechanism, now if they are not specified, they will all be displayed
+- added the ability to choose the colors of the levels for the consoleTransport
+- added the ability to choose the colors of extensions in consoleTransport
+- added a transport that prints logs with the native console methods (log, info, error, etc ...)
+- fixed type exports
+- minor bugfix
+
+#### BREAKING CHANGES
+
+- from this version if no extensions are specified in the configuration then all are printed, otherwise only the specified ones
+- the colors option for the consoleTransport must now be set with the desired colors for each level (see the readme), if not set the logs will not be colored
+- removed css web color support (latest chrome versions support ansi codes)
+- enable() and disable() methods can now only enable or disable the whole logger
+
 ## [3.0.4] - 04-06-2021
 
 - queue management to avoid race conditions problems with ExpoFS

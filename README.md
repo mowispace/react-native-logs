@@ -5,19 +5,26 @@
 
 # react-native-logs
 
-Performance-aware simple logger for React-Native and Expo (managed and bare) with custom levels and transports (colored console,
-file writing, etc.). Each level has its severity: a number that represents its importance in
+Performance-aware simple logger for React-Native Expo (managed and bare) and react-native-web with custom levels and transports (colored console,
+file writing, etc.).
+
+Each level has its severity: a number that represents its importance in
 ascending order from the least important to the most important. Eg. _debug:0, info:1, warn:2,
-error:3_. By config the logger with a minium severity level, you will see only the logs that have it
+error:3_.
+
+By config the logger with a minium severity level, you will see only the logs that have it
 highest. Then logs will be managed by transport: the function that will display/save/send log
-messages. It is also possible to create namespaced logs that allow logging to be enabled only for
-certain parts of the app.
+messages.
+
+It is also possible to extend the logger to create namespaced logs. In this way you will be able to see the log messages only for one or some parts of the code of your choice
+
+**Demo console transport with custom colored levels and namespaces:**
+![console log demo](https://raw.githubusercontent.com/onubo/react-native-logs/master/demo/demo-react-native-logs.png)
 
 ## Why another logging library?
 
 After trying the most known logging libraries, like winston and bunyan, we found that for
-react-native we needed something simpler, but still flexible, and without dependencies on nodejs (we
-don't like the rn-nodeify solution). Comments and suggestions are welcome.
+react-native we needed something simpler, but still flexible, and without dependencies on nodejs. Comments and suggestions are welcome.
 
 ## Installation
 
@@ -58,33 +65,6 @@ and error levels.
 You can customize the logger by passing a config object to the `createLogger` method (see example
 below). All params are optional and will take default values if no corresponding argument is passed.
 
-**Example with common configuration:**
-
-```javascript
-import { logger, consoleTransport } from "react-native-logs";
-
-const defaultConfig = {
-  severity: "debug",
-  transport: consoleTransport,
-  transportOptions: {
-    color: "ansi", // custom option that color consoleTransport logs
-  },
-  levels: {
-    debug: 0,
-    info: 1,
-    warn: 2,
-    error: 3,
-  },
-  async: true,
-  dateFormat: "time",
-  printLevel: true,
-  printDate: true,
-  enabled: true,
-};
-
-var log = logger.createLogger(defaultConfig);
-```
-
 | Parameter         | Type     | Description                                                 | Default                                   |
 | ----------------- | -------- | ----------------------------------------------------------- | ----------------------------------------- |
 | severity          | string   | Init logs severity (least important level you want to see)  | `debug` (or the first custom level)       |
@@ -97,7 +77,41 @@ var log = logger.createLogger(defaultConfig);
 | printLevel        | boolean  | Choose whether to print the log level                       | `true`                                    |
 | printDate         | boolean  | Choose whether to print the log date/time                   | `true`                                    |
 | enabled           | boolean  | Enable or disable logging                                   | `true`                                    |
-| enabledExtensions | string[] | List of enabled namepaces                                   | `[]`                                      |
+| enabledExtensions | string[] | Enable only certain namespaces                              | `null`                                    |
+
+#### Example with common configuration
+
+```javascript
+import { logger, consoleTransport } from "react-native-logs";
+
+const defaultConfig = {
+  levels: {
+    debug: 0,
+    info: 1,
+    warn: 2,
+    error: 3,
+  },
+  severity: "debug",
+  transport: consoleTransport,
+  transportOptions: {
+    colors: {
+      info: "blueBright",
+      warn: "yellowBright",
+      error: "redBright",
+    },
+  },
+  async: true,
+  dateFormat: "time",
+  printLevel: true,
+  printDate: true,
+  enabled: true,
+};
+
+var log = logger.createLogger(defaultConfig);
+
+log.debug("Debug message");
+log.info({ message: "hi!" });
+```
 
 ### Custom levels
 
@@ -117,6 +131,8 @@ const config = {
 };
 
 var log = logger.createLogger(config);
+
+log.silly("Silly message");
 ```
 
 ### Custom transport
@@ -146,6 +162,8 @@ const config = {
 };
 
 var log = logger.createLogger(config);
+
+log.debug("Debug message");
 ```
 
 ### Transport Options
@@ -167,6 +185,8 @@ const config = {
 };
 
 var log = logger.createLogger(config);
+
+log.debug("Debug message");
 ```
 
 ### Multiple Arguments
@@ -186,19 +206,18 @@ log.error("New error occured", errorObject);
 react-native-logs includes some preset transports. You can import the one of your choice:
 `import { logger, <transportName> } from 'react-native-logs';`
 
-#### Example:
+#### Example
 
 ```javascript
-import { logger, consoleTransport } from "react-native-logs";
+import { logger, mapConsoleTransport } from "react-native-logs";
 
 const config = {
-  transport: consoleTransport,
-  transportOptions: {
-    colors: `ansi`,
-  },
+  transport: mapConsoleTransport,
 };
 
 var log = logger.createLogger(config);
+
+log.debug("Debug message");
 ```
 
 ## List of included preset transports
@@ -207,9 +226,105 @@ var log = logger.createLogger(config);
 
 Print the logs with a formatted `console.log` output.
 
-| name   | type   | description                                                                                                        | default |
-| ------ | ------ | ------------------------------------------------------------------------------------------------------------------ | ------- |
-| colors | string | Choose between `null` (no colors), `web` (colors for chrome console), `ansi` (colors for system or vscode console) | `null`  |
+| name            | type   | description                                                              | default |
+| --------------- | ------ | ------------------------------------------------------------------------ | ------- |
+| colors          | object | If setted you can choose the log colors, defined by level: {level:color} | `null`  |
+| extensionColors | object | If setted you can choose the extension label colors: {extension:color}   | `null`  |
+
+#### Available colors
+
+| name          | ansi code | note                  |
+| ------------- | --------- | --------------------- |
+| default       | null      | default console color |
+| black         | 30        |
+| red           | 31        |
+| green         | 32        |
+| yellow        | 33        |
+| blue          | 34        |
+| magenta       | 35        |
+| cyan          | 36        |
+| white         | 37        |
+| grey          | 90        |
+| redBright     | 91        |
+| greenBright   | 92        |
+| yellowBright  | 93        |
+| blueBright    | 94        |
+| magentaBright | 95        |
+| cyanBright    | 96        |
+| whiteBright   | 97        |
+
+#### Example
+
+```javascript
+import { logger, consoleTransport } from "react-native-logs";
+
+const config = {
+  levels: {
+    debug: 0,
+    info: 1,
+    warn: 2,
+    error: 3,
+  },
+  transport: consoleTransport,
+  transportOptions: {
+    colors: {
+      info: "blueBright",
+      warn: "yellowBright",
+      error: "redBright",
+    },
+    extensionColors: {
+      root: "magenta",
+      home: "green",
+    },
+  },
+};
+
+var log = logger.createLogger(config);
+var rootLog = log.extend("root");
+var homeLog = log.extend("home");
+
+rootLog.info("Magenta Extension and bright blue message");
+homeLog.error("Green Extension and bright red message");
+```
+
+### **mapConsoleTransport**
+
+Print the logs with a selected `console` method (`console.log`, `console.warn`, `console.error`, etc.).
+
+| name      | type   | description                                        | default |
+| --------- | ------ | -------------------------------------------------- | ------- |
+| mapLevels | object | Select the console method by level: {level:method} | `null`  |
+
+If mapLevels is not setted, the transport will try to map the console methods with the level name.
+
+#### Example
+
+```javascript
+import { logger, mapConsoleTransport } from "react-native-logs";
+
+const config = {
+  levels: {
+    debug: 0,
+    info: 1,
+    warn: 2,
+    err: 3,
+  },
+  transport: mapConsoleTransport,
+  transportOptions: {
+    mapLevels: {
+      debug: "log",
+      info: "info",
+      warn: "warn",
+      err: "error",
+    },
+  },
+};
+
+var log = logger.createLogger(config);
+
+log.debug("Print this with console.log");
+log.err("Print this with console.error");
+```
 
 ### **fileAsyncTransport**
 
@@ -303,9 +418,6 @@ import { logger, consoleTransport } from "react-native-logs";
 
 const config = {
   transport: consoleTransport,
-  transportOptions: {
-    colors: `ansi`,
-  },
   enabledExtensions: ['ROOT','HOME']
 };
 
@@ -330,13 +442,10 @@ Dynamically enable/disable loggers and extensions, if it is called without param
 import { logger } from "react-native-logs";
 
 var log = logger.createLogger();
-var rootLog = log.extend('ROOT');
 
-rootLog.info('not print this'): // this extension is not enabled
-log.enable('ROOT');
-rootLog.info('print this'): // this will print "<time> | ROOT | INFO | print this"
-log.disable('ROOT');
-rootLog.info('not print this'): // this extension is not enabled
+log.info('print this'): // this will print "<time> | ROOT | INFO | print this"
+log.disable();
+log.info('not print this'): // logger is not enabled
 ```
 
 #### getExtensions
@@ -379,14 +488,18 @@ In reacly-native, after you have create your logger, you can set to log only in 
 the `__DEV__` as follows:
 
 ```javascript
-import { logger, consoleTransport, fileAsyncTransport } from "react-native-logs";
+import {
+  logger,
+  consoleTransport,
+  fileAsyncTransport,
+} from "react-native-logs";
 import RNFS from "react-native-fs";
 
 const config = {
   transport: __DEV__ ? consoleTransport : fileAsyncTransport,
   severity: __DEV__ ? "debug" : "error",
   transportOptions: {
-    colors: `ansi`,
+    colors
     FS: RNFS,
   },
 };
@@ -404,14 +517,22 @@ initialize the logger so it can be imported wherever it is needed. Example:
 
 ```javascript
 //config.js
-import { logger, consoleTransport, fileAsyncTransport } from "react-native-logs";
+import {
+  logger,
+  consoleTransport,
+  fileAsyncTransport,
+} from "react-native-logs";
 import RNFS from "react-native-fs";
 
 const config = {
   transport: __DEV__ ? consoleTransport : fileAsyncTransport,
   severity: __DEV__ ? "debug" : "error",
   transportOptions: {
-    colors: `ansi`,
+    colors: {
+      info: "blueBright",
+      warn: "yellowBright",
+      error: "redBright",
+    },
     FS: RNFS,
   },
 };
@@ -485,7 +606,11 @@ const log = logger.createLogger({
   transportOptions: {
     FS: RNFS,
     SENTRY: Sentry,
-    colors: "ansi",
+    colors: {
+      info: "blueBright",
+      warn: "yellowBright",
+      error: "redBright",
+    },
   },
 });
 ```

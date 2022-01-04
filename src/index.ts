@@ -29,6 +29,7 @@
 
 /** Import preset transports */
 import { consoleTransport } from "./transports/consoleTransport";
+import { mapConsoleTransport } from "./transports/mapConsoleTransport";
 import { fileAsyncTransport } from "./transports/fileAsyncTransport";
 import { sentryTransport } from "./transports/sentryTransport";
 
@@ -67,7 +68,7 @@ type configLoggerType = {
   levels?: levelsType;
   async?: boolean;
   asyncFunc?: Function;
-  dateFormat?: "time" | "local" | "utc" | "iso";
+  dateFormat?: string; //"time" | "local" | "utc" | "iso";
   printLevel?: boolean;
   printDate?: boolean;
   enabled?: boolean;
@@ -117,7 +118,7 @@ class logs {
   private _printDate: boolean;
   private _enabled: boolean;
 
-  private _enabledExtensions: { [key: string]: boolean } | null = null;
+  private _enabledExtensions: string[] | null = null;
   private _extensions: string[] = [];
   private _extendedLogs: { [key: string]: extendedLogType } = {};
 
@@ -194,14 +195,12 @@ class logs {
       this._enabled = config.enabled;
     }
 
-    /** Check if config printDate property exist and set it */
+    /** Check if config enabledExtensions property exist and set it */
     if (config && config.enabledExtensions) {
       if (Array.isArray(config.enabledExtensions)) {
-        for (let i = 0; i < config.enabledExtensions.length; ++i) {
-          this.enable(config.enabledExtensions[i]);
-        }
+        this._enabledExtensions = config.enabledExtensions;
       } else if (typeof config.enabledExtensions === "string") {
-        this.disable(config.enabledExtensions);
+        this._enabledExtensions = [config.enabledExtensions];
       }
     }
 
@@ -264,6 +263,24 @@ class logs {
     return true;
   };
 
+  private _stringifyMsg = (msg: any): string => {
+    let stringMsg = "";
+    if (typeof msg === "string") {
+      stringMsg = msg + " ";
+    } else if (typeof msg === "function") {
+      stringMsg = "[function] ";
+    } else if (msg && msg.stack && msg.message) {
+      stringMsg = msg.message + " ";
+    } else {
+      try {
+        stringMsg = "\n" + JSON.stringify(msg, undefined, 2) + "\n";
+      } catch (error) {
+        stringMsg += "Undefined Message";
+      }
+    }
+    return stringMsg;
+  };
+
   private _formatMsg = (
     level: string,
     extension: string | null,
@@ -296,43 +313,17 @@ class logs {
 
     let levelTxt = "";
     if (this._printLevel) {
-      levelTxt = `${level.toUpperCase()} | `;
+      levelTxt = `${level.toUpperCase()} : `;
     }
 
     let stringMsg: string = dateTxt + nameTxt + levelTxt;
 
     if (Array.isArray(msgs)) {
       for (let i = 0; i < msgs.length; ++i) {
-        let msg = msgs[i];
-        if (typeof msg === "string") {
-          stringMsg += msg;
-        } else if (typeof msg === "function") {
-          stringMsg += "[function]";
-        } else if (msgs[i] && msgs[i].stack && msgs[i].message) {
-          stringMsg += msgs[i].message;
-        } else {
-          try {
-            stringMsg += JSON.stringify(msg);
-          } catch (error) {
-            stringMsg += "Undefined Error";
-          }
-        }
-        if (msgs.length > i + 1) {
-          stringMsg += " ";
-        }
+        stringMsg += this._stringifyMsg(msgs[i]);
       }
-    } else if (typeof msgs === "string") {
-      stringMsg += msgs;
-    } else if (typeof msgs === "function") {
-      stringMsg += "[function]";
-    } else if (msgs && msgs.stack && msgs.message) {
-      stringMsg += msgs.message;
-    } else if (msgs) {
-      try {
-        stringMsg += JSON.stringify(msgs);
-      } catch (error) {
-        stringMsg += "Undefined Error";
-      }
+    } else {
+      stringMsg += this._stringifyMsg(msgs);
     }
 
     return stringMsg;
@@ -348,9 +339,13 @@ class logs {
 
   /** Return true if extension is enabled */
   private _isExtensionEnabled = (extension: string): boolean => {
-    if (!this._enabledExtensions || !this._enabledExtensions[extension])
-      return false;
-    return true;
+    if (!this._enabledExtensions) {
+      return true;
+    }
+    if (this._enabledExtensions.includes(extension)) {
+      return true;
+    }
+    return false;
   };
 
   /** Extend logger with a new extension */
@@ -370,12 +365,12 @@ class logs {
           `react-native-logs: you cannot extend a logger from an already extended logger`
         );
       };
-      extendedLog["enable"] = (extension: string) => {
+      extendedLog["enable"] = () => {
         throw Error(
           `react-native-logs: You cannot enable a logger from extended logger`
         );
       };
-      extendedLog["disable"] = (extension: string) => {
+      extendedLog["disable"] = () => {
         throw Error(
           `react-native-logs: You cannot disable a logger from extended logger`
         );
@@ -399,26 +394,15 @@ class logs {
     return extendedLog;
   };
 
-  /** Enable an extension */
-  enable = (extension: string): boolean => {
-    if (!extension) {
-      this._enabled = true;
-      return true;
-    }
-    if (!this._enabledExtensions) this._enabledExtensions = {};
+  /** Enable logger */
+  enable = (): boolean => {
     this._enabled = true;
-    this._enabledExtensions[extension] = true;
     return true;
   };
 
-  /** Disable an extension */
-  disable = (extension: string): boolean => {
-    if (!extension) {
-      this._enabled = false;
-      return true;
-    }
-    if (!this._enabledExtensions) return true;
-    this._enabledExtensions[extension] = false;
+  /** Disable logger */
+  disable = (): boolean => {
+    this._enabled = false;
     return true;
   };
 
@@ -462,9 +446,10 @@ const logger = { createLogger };
 
 export {
   logger,
-  transportFunctionType,
-  configLoggerType,
   consoleTransport,
+  mapConsoleTransport,
   fileAsyncTransport,
   sentryTransport,
 };
+
+export type { transportFunctionType, configLoggerType };

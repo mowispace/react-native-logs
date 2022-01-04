@@ -1,4 +1,4 @@
-import { transportFunctionType } from '../index';
+import { transportFunctionType } from "../index";
 
 interface EXPOqueueitem {
   FS: any;
@@ -47,7 +47,7 @@ const EXPOFSappend = async (FS: any, file: string, msg: string) => {
 
 const RNFSappend = async (FS: any, file: string, msg: string) => {
   try {
-    await FS.appendFile(file, msg, 'utf8');
+    await FS.appendFile(file, msg, "utf8");
     return true;
   } catch (error) {
     console.error(error);
@@ -56,8 +56,10 @@ const RNFSappend = async (FS: any, file: string, msg: string) => {
 };
 
 const fileAsyncTransport: transportFunctionType = (props) => {
+  if (!props) return false;
+
   let WRITE: (FS: any, file: string, msg: string) => Promise<boolean>;
-  let fileName: string = 'log';
+  let fileName: string = "log";
   let filePath: string;
 
   if (!props?.options?.FS) {
@@ -86,7 +88,7 @@ const fileAsyncTransport: transportFunctionType = (props) => {
   if (props?.options?.filePath) filePath = props.options.filePath;
 
   let output = `${props?.msg}\n`;
-  var path = filePath + '/' + fileName;
+  var path = filePath + "/" + fileName;
 
   WRITE(props.options.FS, path, output);
 };

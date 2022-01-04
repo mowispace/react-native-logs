@@ -1,44 +1,64 @@
 import { transportFunctionType } from "../index";
 
-const webColors: Array<string> = [
-  "",
-  "color: dodgerblue;font-weight:bold",
-  "color: orange;font-weight:bold;",
-  "color: indianred;font-weight:bold;",
-  "color: #fc2a66;font-weight:bold;",
-  "color: #49ed21;font-weight:bold;",
-  "color: #d69c51;font-weight:bold;",
-  "color: #e2e83a;font-weight:bold;",
-  "color: #2e7cd1;font-weight:bold;",
-  "color: #4d1bc1;font-weight:bold;",
-  "color: #b54ae2;font-weight:bold;",
-];
+const availableColors: any = {
+  default: null,
+  black: 30,
+  red: 31,
+  green: 32,
+  yellow: 33,
+  blue: 34,
+  magenta: 35,
+  cyan: 36,
+  white: 37,
+  grey: 90,
+  redBright: 91,
+  greenBright: 92,
+  yellowBright: 93,
+  blueBright: 94,
+  magentaBright: 95,
+  cyanBright: 96,
+  whiteBright: 97,
+};
 
-const ansiColors: Array<string> = [
-  "",
-  "\x1B[94m",
-  "\x1B[93m",
-  "\x1B[91m",
-  "\x1B[95m",
-  "\x1B[96m",
-  "\x1B[92m",
-  "\x1B[35m",
-  "\x1B[33m",
-  "\x1B[34m",
-  "\x1B[32m",
-];
-const colorEnd = "\x1B[0m";
+const resetColors = "\x1b[0m";
 
 const consoleTransport: transportFunctionType = (props) => {
-  if (props?.options?.colors === "ansi") {
-    console.log(
-      `${ansiColors[props?.level?.severity]}${props?.msg}${colorEnd}`
-    );
-  } else if (props?.options?.colors === "web") {
-    console.log(`%c${props?.msg}`, webColors[props?.level?.severity] || "");
-  } else {
-    console.log(props?.msg);
+  if (!props) return false;
+
+  let msg = props.msg;
+  let color;
+
+  if (
+    props.options?.colors &&
+    props.options.colors[props.level.text] &&
+    availableColors[props.options.colors[props.level.text]]
+  ) {
+    color = `\x1b[${availableColors[props.options.colors[props.level.text]]}m`;
+    msg = `${color}${msg}${resetColors}`;
   }
+
+  if (props.extension && props.options?.extensionColors) {
+    let extensionColor = "\x1b[7m";
+
+    if (
+      props.options.extensionColors[props.extension] &&
+      availableColors[props.options.extensionColors[props.extension]]
+    ) {
+      extensionColor = `\x1b[${
+        availableColors[props.options.extensionColors[props.extension]] + 10
+      }m`;
+    }
+
+    let extStart = color ? resetColors + extensionColor : extensionColor;
+    let extEnd = color ? resetColors + color : resetColors;
+    msg = msg.replace(
+      props.extension,
+      `${extStart} ${props.extension} ${extEnd}`
+    );
+  }
+
+  console.log(msg.trim());
+
   return true;
 };
 
