@@ -1,3 +1,7 @@
+## [4.0.1] - 15-01-2022
+
+- enable() and disable() methods can now enable or disable extensions
+
 ## [4.0.0] - 03-01-2022
 
 In this new major update many of the features requested in the previous issues have been fixed, introduced or improved:
@@ -14,7 +18,6 @@ In this new major update many of the features requested in the previous issues h
 - from this version if no extensions are specified in the configuration then all are printed, otherwise only the specified ones
 - the colors option for the consoleTransport must now be set with the desired colors for each level (see the readme), if not set the logs will not be colored
 - removed css web color support (latest chrome versions support ansi codes)
-- enable() and disable() methods can now only enable or disable the whole logger
 
 ## [3.0.4] - 04-06-2021
 

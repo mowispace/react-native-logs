@@ -394,16 +394,50 @@ class logs {
     return extendedLog;
   };
 
-  /** Enable logger */
-  enable = (): boolean => {
-    this._enabled = true;
-    return true;
+  /** Enable logger or extension */
+  enable = (extension?: string): boolean => {
+    if (!extension) {
+      this._enabled = true;
+      return true;
+    }
+
+    if (this._extensions.includes(extension)) {
+      if (this._enabledExtensions) {
+        if (!this._enabledExtensions.includes(extension)) {
+          this._enabledExtensions.push(extension);
+          return true;
+        } else {
+          return true;
+        }
+      } else {
+        this._enabledExtensions = [];
+        this._enabledExtensions.push(extension);
+        return true;
+      }
+    } else {
+      throw Error(`react-native-logs: Extension [${extension}] not exist`);
+    }
   };
 
-  /** Disable logger */
-  disable = (): boolean => {
-    this._enabled = false;
-    return true;
+  /** Disable logger or extension */
+  disable = (extension?: string): boolean => {
+    if (!extension) {
+      this._enabled = false;
+      return true;
+    }
+    if (this._extensions.includes(extension)) {
+      if (this._enabledExtensions) {
+        let extIndex = this._enabledExtensions.indexOf(extension);
+        if (extIndex > -1) {
+          this._enabledExtensions.splice(extIndex, 1);
+        }
+        return true;
+      } else {
+        return true;
+      }
+    } else {
+      throw Error(`react-native-logs: Extension [${extension}] not exist`);
+    }
   };
 
   /** Return all created extensions */

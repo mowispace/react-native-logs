@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/onubo/react-native-logs.svg?branch=master)](https://travis-ci.org/onubo/react-native-logs)
 ![npm](https://img.shields.io/npm/v/react-native-logs.svg)
 ![GitHub](https://img.shields.io/github/license/onubo/react-native-logs.svg)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/onubo/react-native-logs/issues)
@@ -146,7 +145,7 @@ whatever you want. The following parameters are received by the function:
 - `extension?: string | null`: its namespace if it is an extended log
 - `options?: any`: the transportOptions object
 
-You can define your custom transport as follow (example in typescript):
+You can define your custom transport as follow (example in typescript)§:
 
 ```javascript
 import { logger, transportFunctionType } from "react-native-logs";
@@ -418,18 +417,18 @@ import { logger, consoleTransport } from "react-native-logs";
 
 const config = {
   transport: consoleTransport,
-  enabledExtensions: ['ROOT','HOME']
+  enabledExtensions: ["ROOT", "HOME"],
 };
 
 var log = logger.createLogger(config);
-var rootLog = log.extend('ROOT');
-var homeLog = log.extend('HOME');
-var profileLog = log.extend('PROFILE');
+var rootLog = log.extend("ROOT");
+var homeLog = log.extend("HOME");
+var profileLog = log.extend("PROFILE");
 
-log.debug('print this'): // this will print "<time> | DEBUG | print this"
-rootLog.debug('print this'): // this will print "<time> | ROOT | DEBUG | print this"
-homeLog.debug('print this'): // this will print "<time> | HOME | DEBUG | print this"
-profileLog.debug('not print this'): // this extension is not enabled
+log.debug("print this"); // this will print "<time> | DEBUG | print this"
+rootLog.debug("print this"); // this will print "<time> | ROOT | DEBUG | print this"
+homeLog.debug("print this"); // this will print "<time> | HOME | DEBUG | print this"
+profileLog.debug("not print this"); // this extension is not enabled
 ```
 
 ## Methods
@@ -439,13 +438,30 @@ profileLog.debug('not print this'): // this extension is not enabled
 Dynamically enable/disable loggers and extensions, if it is called without parameters then it will disable/enable the whole logger:
 
 ```javascript
-import { logger } from "react-native-logs";
+import { logger, consoleTransport } from "react-native-logs";
 
-var log = logger.createLogger();
+const config = {
+  transport: consoleTransport,
+  enabledExtensions: ["ROOT", "HOME"],
+};
 
-log.info('print this'): // this will print "<time> | ROOT | INFO | print this"
+var log = logger.createLogger(config);
+var rootLog = log.extend("ROOT");
+var homeLog = log.extend("HOME");
+
+log.info("print this"); // this will print "<time> | ROOT | INFO | print this"
+homeLog.info("print this"); // extension is enabled
+
+log.disable("HOME");
+
+homeLog.info("not print this"); // extension is not enabled
+rootLog.info("print this"); // extension is enabled
+
 log.disable();
-log.info('not print this'): // logger is not enabled
+
+homeLog.info("not print this"); // logger is not enabled
+rootLog.info("not print this"); // logger is not enabled
+log.info("not print this"); // logger is not enabled
 ```
 
 #### getExtensions
