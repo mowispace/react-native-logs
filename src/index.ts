@@ -406,6 +406,10 @@ type levelMethods<levels extends string> = {
   [key in levels]: (data: any) => void;
 }
 
+type extendMethod<levels extends string> = {
+  extend: (namespace: string) => levelMethods<levels>
+}
+
 /**
  * Create a logger object. All params will take default values if not passed.
  * each levels has its level severity so we can filter logs with < and > operators
@@ -414,8 +418,9 @@ type levelMethods<levels extends string> = {
  */
 const createLogger = (config?: configLoggerType) => {
   const mergedConfig = { ...defaultLogger, ...config };
+  type levels = keyof typeof mergedConfig['levels']
 
-  return new logs(mergedConfig) as logs & levelMethods<keyof typeof mergedConfig['levels']>;
+  return new logs(mergedConfig) as unknown as Omit<logs, 'extend'> & levelMethods<levels> & extendMethod<levels>;
 }
 
 const logger = { createLogger };
