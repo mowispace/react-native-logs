@@ -107,7 +107,7 @@ const defaultLogger = {
 
 /** Logger Main Class */
 class logs {
-  private _levels: { [key: string]: number };
+  private _levels: levelsType;
   private _level: string;
   private _transport: transportFunctionType;
   private _transportOptions: any;
@@ -122,86 +122,27 @@ class logs {
   private _extensions: string[] = [];
   private _extendedLogs: { [key: string]: extendedLogType } = {};
 
-  constructor(config?: configLoggerType) {
-    this._levels = defaultLogger.levels;
-    this._level = defaultLogger.severity;
-    this._transport = defaultLogger.transport;
-    this._transportOptions = null;
-    this._asyncFunc = defaultLogger.asyncFunc;
-    this._async = defaultLogger.async;
-    this._dateFormat = defaultLogger.dateFormat;
-    this._printLevel = defaultLogger.printLevel;
-    this._printDate = defaultLogger.printDate;
-    this._enabled = defaultLogger.enabled;
+  constructor(config: Required<configLoggerType>) {
+    this._levels = config.levels;
+    this._level = config.severity ?? Object.keys(this._levels)[0];
 
-    /** Check if config levels property exist and set it */
-    if (
-      config &&
-      config.levels &&
-      typeof config.levels === "object" &&
-      Object.keys(config.levels).length > 0
-    ) {
-      this._levels = config.levels;
-    }
+    this._transport = config.transport;
+    this._transportOptions = config.transportOptions;
 
-    /** Check if config level property exist and set it */
-    if (config && config.severity) {
-      this._level = config.severity;
-    }
-    if (!this._levels.hasOwnProperty(this._level)) {
-      this._level = Object.keys(this._levels)[0];
-    }
+    this._asyncFunc = config.asyncFunc;
+    this._async = config.async;
 
-    /** Check if config transport property exist and set it */
-    if (config && config.transport) {
-      this._transport = config.transport;
-    }
+    this._dateFormat = config.dateFormat;
 
-    /** Check if config transportOptions property exist and set it */
-    if (config && config.transportOptions) {
-      this._transportOptions = {
-        ...defaultLogger.transportOptions,
-        ...config.transportOptions,
-      };
-    }
+    this._printLevel = config.printLevel;
+    this._printDate = config.printDate;
 
-    /** Check if config asyncFunc property exist and set it */
-    if (config && config.asyncFunc) {
-      this._asyncFunc = config.asyncFunc;
-    }
+    this._enabled = config.enabled;
 
-    /** Check if config async property exist and set it */
-    if (config && typeof config.async !== "undefined") {
-      this._async = config.async;
-    }
-
-    /** Check if config dateFormat property exist and set it */
-    if (config && config.dateFormat) {
-      this._dateFormat = config.dateFormat;
-    }
-
-    /** Check if config printLevel property exist and set it */
-    if (config && typeof config.printLevel !== "undefined") {
-      this._printLevel = config.printLevel;
-    }
-
-    /** Check if config printDate property exist and set it */
-    if (config && typeof config.printDate !== "undefined") {
-      this._printDate = config.printDate;
-    }
-
-    /** Check if config enabled property exist and set it */
-    if (config && typeof config.enabled !== "undefined") {
-      this._enabled = config.enabled;
-    }
-
-    /** Check if config enabledExtensions property exist and set it */
-    if (config && config.enabledExtensions) {
-      if (Array.isArray(config.enabledExtensions)) {
-        this._enabledExtensions = config.enabledExtensions;
-      } else if (typeof config.enabledExtensions === "string") {
-        this._enabledExtensions = [config.enabledExtensions];
-      }
+    if (Array.isArray(config.enabledExtensions)) {
+      this._enabledExtensions = config.enabledExtensions;
+    } else if (typeof config.enabledExtensions === "string") {
+      this._enabledExtensions = [config.enabledExtensions];
     }
 
     /** Bind correct log levels methods */
@@ -461,9 +402,12 @@ class logs {
   };
 }
 
-/** Extend logs Class with generic types to avoid typescript errors on dynamic log methods */
-class logTyped extends logs {
-  [key: string]: any;
+type levelMethods<levels extends string> = {
+  [key in levels]: (data: any) => void;
+}
+
+type extendMethod<levels extends string> = {
+  extend: (namespace: string) => levelMethods<levels>
 }
 
 /**
@@ -473,8 +417,11 @@ class logTyped extends logs {
  * through the transport
  */
 const createLogger = (config?: configLoggerType) => {
-  return new logTyped(config);
-};
+  const mergedConfig = { ...defaultLogger, ...config };
+  type levels = keyof typeof mergedConfig['levels']
+
+  return new logs(mergedConfig) as unknown as Omit<logs, 'extend'> & levelMethods<levels> & extendMethod<levels>;
+}
 
 const logger = { createLogger };
 
