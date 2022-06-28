@@ -402,13 +402,7 @@ class logs {
   };
 }
 
-type levelMethods<levels extends string> = {
-  [key in levels]: (data: any) => void;
-}
-
-type extendMethod<levels extends string> = {
-  extend: (namespace: string) => levelMethods<levels>
-}
+type defLvlType = "debug" | "info" | "warn" | "error";
 
 /**
  * Create a logger object. All params will take default values if not passed.
@@ -416,12 +410,23 @@ type extendMethod<levels extends string> = {
  * all subsequent levels to the one selected will be exposed (ordered by severity asc)
  * through the transport
  */
-const createLogger = (config?: configLoggerType) => {
-  const mergedConfig = { ...defaultLogger, ...config };
-  type levels = keyof typeof mergedConfig['levels']
+const createLogger = <Y extends string>(config?: configLoggerType) => {
+  type levelMethods<levels extends string> = {
+    [key in levels]: (...args: unknown[]) => void;
+  };
 
-  return new logs(mergedConfig) as unknown as Omit<logs, 'extend'> & levelMethods<levels> & extendMethod<levels>;
-}
+  type loggerType = levelMethods<Y>;
+
+  type ExtendMethods = {
+    extend: (extension: string) => loggerType;
+  };
+
+  const mergedConfig = { ...defaultLogger, ...config };
+
+  return new logs(mergedConfig) as unknown as Omit<logs, "extend"> &
+    loggerType &
+    ExtendMethods;
+};
 
 const logger = { createLogger };
 
@@ -433,4 +438,4 @@ export {
   sentryTransport,
 };
 
-export type { transportFunctionType, configLoggerType };
+export type { transportFunctionType, configLoggerType, defLvlType };

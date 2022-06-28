@@ -1,6 +1,6 @@
 {
   "name": "react-native-logs",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "description": "Performance-aware simple logger for React-Native with namespaces, custom levels and custom transports (colored console, file writing, etc.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/onubo/react-native-logs#readme",
   "devDependencies": {
-    "jest": "^27.4.5",
-    "typescript": "^4.5.4"
+    "jest": "^28.1.1",
+    "typescript": "^4.7.4"
   }
 }
