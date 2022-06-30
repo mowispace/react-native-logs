@@ -33,17 +33,29 @@ import { mapConsoleTransport } from "./transports/mapConsoleTransport";
 import { fileAsyncTransport } from "./transports/fileAsyncTransport";
 import { sentryTransport } from "./transports/sentryTransport";
 
-let asyncFunc: (cb: Function) => any;
-try {
-  const InteractionManager = require("react-native").InteractionManager;
-  asyncFunc = InteractionManager.runAfterInteractions;
-} catch (e) {
-  asyncFunc = (cb: Function) => {
-    setTimeout(() => {
-      return cb();
-    }, 0);
-  };
-}
+let asyncFunc = (cb: Function) => {
+  setTimeout(() => {
+    return cb();
+  }, 0);
+};
+
+let stringifyFunc = (msg: any): string => {
+  let stringMsg = "";
+  if (typeof msg === "string") {
+    stringMsg = msg + " ";
+  } else if (typeof msg === "function") {
+    stringMsg = "[function] ";
+  } else if (msg && msg.stack && msg.message) {
+    stringMsg = msg.message + " ";
+  } else {
+    try {
+      stringMsg = "\n" + JSON.stringify(msg, undefined, 2) + "\n";
+    } catch (error) {
+      stringMsg += "Undefined Message";
+    }
+  }
+  return stringMsg;
+};
 
 /** Types Declaration */
 type transportFunctionType = (props: {
@@ -63,12 +75,13 @@ type levelLogMethodType = (...msgs: any[]) => boolean;
 type extendedLogType = { [key: string]: levelLogMethodType | any };
 type configLoggerType = {
   severity?: string;
-  transport?: transportFunctionType;
+  transport?: transportFunctionType | transportFunctionType[];
   transportOptions?: any;
   levels?: levelsType;
   async?: boolean;
   asyncFunc?: Function;
-  dateFormat?: string; //"time" | "local" | "utc" | "iso";
+  stringifyFunc?: (msg: any) => string;
+  dateFormat?: string | ((date: Date) => string); //"time" | "local" | "utc" | "iso" | "function";
   printLevel?: boolean;
   printDate?: boolean;
   enabled?: boolean;
@@ -83,6 +96,8 @@ const reservedKey: string[] = [
   "getExtensions",
   "setSeverity",
   "getSeverity",
+  "patchConsole",
+  "getOriginalConsole",
 ];
 
 /** Default configuration parameters for logger */
@@ -98,29 +113,33 @@ const defaultLogger = {
   },
   async: false,
   asyncFunc: asyncFunc,
-  dateFormat: "time",
+  stringifyFunc: stringifyFunc,
   printLevel: true,
   printDate: true,
+  dateFormat: "time",
   enabled: true,
   enabledExtensions: null,
+  printFileLine: false,
+  fileLineOffset: 0,
 };
 
 /** Logger Main Class */
 class logs {
   private _levels: levelsType;
   private _level: string;
-  private _transport: transportFunctionType;
+  private _transport: transportFunctionType | transportFunctionType[];
   private _transportOptions: any;
-  private _asyncFunc: Function;
   private _async: boolean;
-  private _dateFormat: string;
+  private _asyncFunc: Function;
+  private _stringifyFunc: (msg: any) => string;
+  private _dateFormat: string | ((date: Date) => string);
   private _printLevel: boolean;
   private _printDate: boolean;
   private _enabled: boolean;
-
   private _enabledExtensions: string[] | null = null;
   private _extensions: string[] = [];
   private _extendedLogs: { [key: string]: extendedLogType } = {};
+  private _originalConsole?: typeof console;
 
   constructor(config: Required<configLoggerType>) {
     this._levels = config.levels;
@@ -131,6 +150,8 @@ class logs {
 
     this._asyncFunc = config.asyncFunc;
     this._async = config.async;
+
+    this._stringifyFunc = config.stringifyFunc;
 
     this._dateFormat = config.dateFormat;
 
@@ -149,22 +170,22 @@ class logs {
     let _this: any = this;
     Object.keys(this._levels).forEach((level: string) => {
       if (typeof level !== "string") {
-        throw Error(`react-native-logs: levels must be strings`);
+        throw Error(`[react-native-logs] ERROR: levels must be strings`);
       }
       if (level[0] === "_") {
         throw Error(
-          `react-native-logs: keys with first char "_" is reserved and cannot be used as levels`
+          `[react-native-logs] ERROR: keys with first char "_" is reserved and cannot be used as levels`
         );
       }
       if (reservedKey.indexOf(level) !== -1) {
         throw Error(
-          `react-native-logs: [${level}] is a reserved key, you cannot set it as custom level`
+          `[react-native-logs] ERROR: [${level}] is a reserved key, you cannot set it as custom level`
         );
       }
       if (typeof this._levels[level] === "number") {
         _this[level] = this._log.bind(this, level, null);
       } else {
-        throw Error(`react-native-logs: [${level}] wrong level config`);
+        throw Error(`[react-native-logs] ERROR: [${level}] wrong level config`);
       }
     }, this);
   }
@@ -200,26 +221,18 @@ class logs {
       extension: extension,
       options: this._transportOptions,
     };
-    this._transport(transportProps);
+    if (Array.isArray(this._transport)) {
+      for (let i = 0; i < this._transport.length; i++) {
+        this._transport[i](transportProps);
+      }
+    } else {
+      this._transport(transportProps);
+    }
     return true;
   };
 
   private _stringifyMsg = (msg: any): string => {
-    let stringMsg = "";
-    if (typeof msg === "string") {
-      stringMsg = msg + " ";
-    } else if (typeof msg === "function") {
-      stringMsg = "[function] ";
-    } else if (msg && msg.stack && msg.message) {
-      stringMsg = msg.message + " ";
-    } else {
-      try {
-        stringMsg = "\n" + JSON.stringify(msg, undefined, 2) + "\n";
-      } catch (error) {
-        stringMsg += "Undefined Message";
-      }
-    }
-    return stringMsg;
+    return this._stringifyFunc(msg);
   };
 
   private _formatMsg = (
@@ -234,21 +247,25 @@ class logs {
 
     let dateTxt: string = "";
     if (this._printDate) {
-      switch (this._dateFormat) {
-        case "time":
-          dateTxt = `${new Date().toLocaleTimeString()} | `;
-          break;
-        case "local":
-          dateTxt = `${new Date().toLocaleString()} | `;
-          break;
-        case "utc":
-          dateTxt = `${new Date().toUTCString()} | `;
-          break;
-        case "iso":
-          dateTxt = `${new Date().toISOString()} | `;
-          break;
-        default:
-          break;
+      if (typeof this._dateFormat === "string") {
+        switch (this._dateFormat) {
+          case "time":
+            dateTxt = `${new Date().toLocaleTimeString()} | `;
+            break;
+          case "local":
+            dateTxt = `${new Date().toLocaleString()} | `;
+            break;
+          case "utc":
+            dateTxt = `${new Date().toUTCString()} | `;
+            break;
+          case "iso":
+            dateTxt = `${new Date().toISOString()} | `;
+            break;
+          default:
+            break;
+        }
+      } else if (typeof this._dateFormat === "function") {
+        dateTxt = this._dateFormat(new Date());
       }
     }
 
@@ -291,6 +308,11 @@ class logs {
 
   /** Extend logger with a new extension */
   extend = (extension: string): extendedLogType => {
+    if (extension === "console") {
+      throw Error(
+        `[react-native-logs:extend] ERROR: you cannot set [console] as extension, use patchConsole instead`
+      );
+    }
     if (this._extensions.includes(extension)) {
       return this._extendedLogs[extension];
     }
@@ -303,32 +325,42 @@ class logs {
       };
       extendedLog["extend"] = (extension: string) => {
         throw Error(
-          `react-native-logs: you cannot extend a logger from an already extended logger`
+          `[react-native-logs] ERROR: you cannot extend a logger from an already extended logger`
         );
       };
       extendedLog["enable"] = () => {
         throw Error(
-          `react-native-logs: You cannot enable a logger from extended logger`
+          `[react-native-logs] ERROR: You cannot enable a logger from extended logger`
         );
       };
       extendedLog["disable"] = () => {
         throw Error(
-          `react-native-logs: You cannot disable a logger from extended logger`
+          `[react-native-logs] ERROR: You cannot disable a logger from extended logger`
         );
       };
       extendedLog["getExtensions"] = () => {
         throw Error(
-          `react-native-logs: You cannot get extensions from extended logger`
+          `[react-native-logs] ERROR: You cannot get extensions from extended logger`
         );
       };
       extendedLog["setSeverity"] = (level: string) => {
         throw Error(
-          `react-native-logs: You cannot set severity from extended logger`
+          `[react-native-logs] ERROR: You cannot set severity from extended logger`
         );
       };
       extendedLog["getSeverity"] = () => {
         throw Error(
-          `react-native-logs: You cannot get severity from extended logger`
+          `[react-native-logs] ERROR: You cannot get severity from extended logger`
+        );
+      };
+      extendedLog["patchConsole"] = () => {
+        throw Error(
+          `[react-native-logs] ERROR: You cannot patch console from extended logger`
+        );
+      };
+      extendedLog["getOriginalConsole"] = () => {
+        throw Error(
+          `[react-native-logs] ERROR: You cannot get original console from extended logger`
         );
       };
     });
@@ -356,7 +388,9 @@ class logs {
         return true;
       }
     } else {
-      throw Error(`react-native-logs: Extension [${extension}] not exist`);
+      throw Error(
+        `[react-native-logs:enable] ERROR: Extension [${extension}] not exist`
+      );
     }
   };
 
@@ -377,7 +411,9 @@ class logs {
         return true;
       }
     } else {
-      throw Error(`react-native-logs: Extension [${extension}] not exist`);
+      throw Error(
+        `[react-native-logs:disable] ERROR: Extension [${extension}] not exist`
+      );
     }
   };
 
@@ -391,7 +427,9 @@ class logs {
     if (level in this._levels) {
       this._level = level;
     } else {
-      throw Error(`react-native-logs: Level [${level}] not exist`);
+      throw Error(
+        `[react-native-logs:setSeverity] ERROR: Level [${level}] not exist`
+      );
     }
     return this._level;
   };
@@ -399,6 +437,37 @@ class logs {
   /** Get current log severity API */
   getSeverity = (): string => {
     return this._level;
+  };
+
+  /** Monkey Patch global console.log */
+  patchConsole = (): void => {
+    let extension = "console";
+    let levelKeys = Object.keys(this._levels);
+
+    if (!this._originalConsole) {
+      this._originalConsole = console;
+    }
+
+    if (!this._transportOptions.consoleFunc) {
+      this._transportOptions.consoleFunc = this._originalConsole.log;
+    }
+
+    console["log"] = (...msgs: any) => {
+      this._log(levelKeys[0], extension, ...msgs);
+    };
+
+    levelKeys.forEach((level: string) => {
+      if ((console as any)[level]) {
+        (console as any)[level] = (...msgs: any) => {
+          this._log(level, extension, ...msgs);
+        };
+      } else {
+        this._originalConsole &&
+          this._originalConsole.log(
+            `[react-native-logs:patchConsole] WARNING: "${level}" method does not exist in console and will not be available`
+          );
+      }
+    });
   };
 }
 
@@ -417,7 +486,7 @@ const createLogger = <Y extends string>(config?: configLoggerType) => {
 
   type loggerType = levelMethods<Y>;
 
-  type ExtendMethods = {
+  type extendMethods = {
     extend: (extension: string) => loggerType;
   };
 
@@ -425,7 +494,7 @@ const createLogger = <Y extends string>(config?: configLoggerType) => {
 
   return new logs(mergedConfig) as unknown as Omit<logs, "extend"> &
     loggerType &
-    ExtendMethods;
+    extendMethods;
 };
 
 const logger = { createLogger };

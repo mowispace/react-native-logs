@@ -57,7 +57,11 @@ const consoleTransport: transportFunctionType = (props) => {
     );
   }
 
-  console.log(msg.trim());
+  if (props.options?.consoleFunc) {
+    props.options.consoleFunc(msg.trim());
+  } else {
+    console.log(msg.trim());
+  }
 
   return true;
 };

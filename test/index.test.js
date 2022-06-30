@@ -54,7 +54,7 @@ test("Set wrong level config should throw error", () => {
     var log = rnlogs.logger.createLogger(customConfig);
   } catch (e) {
     expect(e.message).toMatch(
-      "react-native-logs: [wrongLevel] wrong level config"
+      "[react-native-logs] ERROR: [wrongLevel] wrong level config"
     );
   }
 });
@@ -66,7 +66,7 @@ test("Set undefined level should throw error", () => {
     log.setSeverity("wrongLevel");
   } catch (e) {
     expect(e.message).toMatch(
-      "react-native-logs: Level [wrongLevel] not exist"
+      "[react-native-logs:setSeverity] ERROR: Level [wrongLevel] not exist"
     );
   }
 });
@@ -81,7 +81,7 @@ test("Initialize with reserved key should throw error", () => {
     var log = rnlogs.logger.createLogger(customConfig);
   } catch (e) {
     expect(e.message).toMatch(
-      "react-native-logs: [setSeverity] is a reserved key, you cannot set it as custom level"
+      "[react-native-logs] ERROR: [setSeverity] is a reserved key, you cannot set it as custom level"
     );
   }
 });

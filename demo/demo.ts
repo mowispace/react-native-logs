@@ -1,4 +1,10 @@
-import { logger, consoleTransport, mapConsoleTransport } from "../src";
+import {
+  logger,
+  consoleTransport,
+  mapConsoleTransport,
+  configLoggerType,
+  defLvlType,
+} from "../src";
 
 const config = {
   levels: {
@@ -22,7 +28,7 @@ const config = {
   },
 };
 
-var log = logger.createLogger(config);
+var log = logger.createLogger<defLvlType>(config);
 var rootLog = log.extend("root");
 var homeLog = log.extend("home");
 var userLog = log.extend("user");
@@ -38,3 +44,5 @@ userLog.debug("User logged in correctly");
 userLog.error("User wrong password");
 
 rootLog.info("Log Object:", { a: 1, b: 2 });
+
+rootLog.info("Multiple", "strings", ["array1", "array2"]);

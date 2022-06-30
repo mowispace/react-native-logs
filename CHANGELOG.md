@@ -1,3 +1,18 @@
+## [5.0.0] - 30-06-2022
+
+- Simplified init configuration (thanks to @Harjot1Singh)
+- Added levels typing
+- Customizable stringify function
+- Transport config option now accept array of transports
+- fileAsyncTransport can be configured to create a new file everyday
+- customizable console.log function in consoleTrasport
+- Added patchConsole method
+- dateFormat now accept a custom function
+
+#### BREAKING CHANGES
+
+There are no real breaking changes in this version, only the default async function has been changed, which is now a simple setTimeout to 0 ms.
+
 ## [4.0.1] - 15-01-2022
 
 - enable() and disable() methods can now enable or disable extensions

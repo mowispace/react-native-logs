@@ -84,7 +84,14 @@ const fileAsyncTransport: transportFunctionType = (props) => {
     );
   }
 
-  if (props?.options?.fileName) fileName = props.options.fileName;
+  if (props?.options?.fileName === "date-today") {
+    let today = new Date();
+    let d = today.getDate();
+    let m = today.getMonth() + 1;
+    let y = today.getFullYear();
+    fileName = `logs_${d}-${m}-${y}`;
+  } else if (props?.options?.fileName) props.options.fileName;
+
   if (props?.options?.filePath) filePath = props.options.filePath;
 
   let output = `${props?.msg}\n`;

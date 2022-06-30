@@ -64,19 +64,20 @@ and error levels.
 You can customize the logger by passing a config object to the `createLogger` method (see example
 below). All params are optional and will take default values if no corresponding argument is passed.
 
-| Parameter         | Type     | Description                                                 | Default                                   |
-| ----------------- | -------- | ----------------------------------------------------------- | ----------------------------------------- |
-| severity          | string   | Init logs severity (least important level you want to see)  | `debug` (or the first custom level)       |
-| transport         | Function | The transport function for logs (see below for presets)     | The preset transport `consoleTransport`   |
-| transportOptions  | Object   | Set custom options for transports                           | `null`                                    |
-| levels            | Object   | Set custom log levels: {name:power}                         | `false`                                   |
-| async             | boolean  | Set to true for async logs (to improve app performance)     | `true`                                    |
-| asyncFunc         | Function | Set a cutom async function `(cb: Function)=>{return cb()}`  | `InteractionManager.runAfterInteractions` |
-| dateFormat        | string   | Choose between only `time` or a date: `local`, `utc`, `iso` | `time`                                    |
-| printLevel        | boolean  | Choose whether to print the log level                       | `true`                                    |
-| printDate         | boolean  | Choose whether to print the log date/time                   | `true`                                    |
-| enabled           | boolean  | Enable or disable logging                                   | `true`                                    |
-| enabledExtensions | string[] | Enable only certain namespaces                              | `null`                                    |
+| Parameter         | Type                   | Description                                                | Default                                 |
+| ----------------- | ---------------------- | ---------------------------------------------------------- | --------------------------------------- |
+| severity          | string                 | Init logs severity (least important level you want to see) | `debug` (or the first custom level)     |
+| transport         | function or [function] | The transport function/s for logs (see below for presets)  | The preset transport `consoleTransport` |
+| transportOptions  | Object                 | Set custom options for transports                          | `null`                                  |
+| levels            | Object                 | Set custom log levels: {name:power}                        | `false`                                 |
+| async             | boolean                | Set to true for async logs (to improve app performance)    | `true`                                  |
+| asyncFunc         | function               | Set a cutom async function `(cb: Function)=>{return cb()}` | `setTimeout`                            |
+| stringifyFunc     | function               | Set a cutom stringify function `(msg: any)=>string`        | a customized `JSON.stringify`           |
+| dateFormat        | string or function     | `time`, `local`, `utc`, `iso` or `(date: Date) => string`  | `time`                                  |
+| printLevel        | boolean                | Choose whether to print the log level                      | `true`                                  |
+| printDate         | boolean                | Choose whether to print the log date/time                  | `true`                                  |
+| enabled           | boolean                | Enable or disable logging                                  | `true`                                  |
+| enabledExtensions | string[]               | Enable only certain namespaces                             | `null`                                  |
 
 #### Example with common configuration
 
@@ -132,6 +133,32 @@ const config = {
 var log = logger.createLogger(config);
 
 log.silly("Silly message");
+```
+
+### Levels typing
+
+(available only if you use typescript)
+
+To fully type the logger you can specify your custom or default levels when creating the logger.
+
+In this way typescript will be able to know your levels, and you will receive an error if you use a level that does not exist in the configuration.
+
+```typescript
+import { logger } from "react-native-logs";
+
+const config = {
+  levels: {
+    trace: 0,
+    info: 1,
+    error: 2,
+  },
+};
+
+var log = logger.createLogger<"trace" | "info" | "error">(config);
+
+log.trace("message"); // correct log call
+
+log.silly("message"); // typescript error, "silly" method does not exist
 ```
 
 ### Custom transport
@@ -225,10 +252,13 @@ log.debug("Debug message");
 
 Print the logs with a formatted `console.log` output.
 
-| name            | type   | description                                                              | default |
-| --------------- | ------ | ------------------------------------------------------------------------ | ------- |
-| colors          | object | If setted you can choose the log colors, defined by level: {level:color} | `null`  |
-| extensionColors | object | If setted you can choose the extension label colors: {extension:color}   | `null`  |
+If you need a different console or method to be used instead of `console.log` you can set the `consoleFunc` option with your custom console.
+
+| name            | type           | description                                                              | default |
+| --------------- | -------------- | ------------------------------------------------------------------------ | ------- |
+| colors          | object         | If setted you can choose the log colors, defined by level: {level:color} | `null`  |
+| extensionColors | object         | If setted you can choose the extension label colors: {extension:color}   | `null`  |
+| consoleFunc     | (msg:any)=>any | If setted you can choose the console object                              | `null`  |
 
 #### Available colors
 
@@ -330,12 +360,14 @@ log.err("Print this with console.error");
 This transport requires the installation of `react-native-fs`([install tutorial here](https://github.com/itinance/react-native-fs)) or `expo-file-system`, and allows you to save the
 logs on the `<filePath>/<fileName>.txt` file.
 
+If you want a new file to be created every day you can use `date-today` as fileName so the log files will be saved as: `logs_dd-mm-yyyy`.
+
 #### Accepted Options:
 
 | name     | type   | description                                                                | default                                                             |
 | -------- | ------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | FS       | Object | MANDATORY, filesystem instance for the transport (RNFS or expo FileSystem) | `null`                                                              |
-| fileName | string | set logs file name                                                         | `log`                                                               |
+| fileName | string | set logs file name (use `date-today` for current date)                     | `log`                                                               |
 | filePath | string | set logs file path                                                         | `RNFS.DocumentDirectoryPath` or expo `FileSystem.documentDirectory` |
 
 #### Example:
@@ -360,7 +392,7 @@ const config = {
     /* EXPO:
      * FS: FileSystem,
      */
-    fileName: `logs_${date}-${month}-${year}`, // Create a new file every day
+    fileName: `date-today`, // Create a new file every day
   },
 };
 
@@ -496,6 +528,48 @@ log.setSeverity("error");
 var newseverity = log.getSeverity(); // newseverity = error
 ```
 
+#### patchConsole
+
+(Experimental)
+
+With this method you are going to overwrite the default console, which is useful in case you are installing this package in an existing software where you use the default console.
+
+Any levels you specify in configuration, if they exist, will be mapped to the console methods (console.log, console.info, console.error, etc...).
+
+If you do not specify a `log` level in configuration then your first level will be mapped to it.
+
+All calls to `console.*` will then be handled by your react-native-logs logger and then you can manage their visibility via severity, or change their transports.
+
+This method may have undesirable effects, so I recommend using it only if necessary.
+
+```javascript
+import { logger, consoleTransport } from "react-native-logs";
+
+const config = {
+  levels: {
+    debug: 0,
+    log: 1,
+    warn: 2,
+    error: 3,
+  },
+  severity: "log",
+  printLevel: true,
+  printDate: true,
+};
+
+var log = logger.createLogger(defaultConfig);
+
+// this call will use default console
+console.log("This method use console");
+
+log.patchConsole();
+
+// all of the following console calls will use your react-native-logs logger
+console.log("This method use your logger");
+console.warn("This method use your logger too");
+console.debug("this message will not be shown"); // severity is set to 'log'
+```
+
 ## Usage Tips
 
 ### Logs only in development mode
@@ -593,8 +667,7 @@ log.info("home log test");
 
 ### Use multiple transports
 
-To use multiple transports for logs, just create a transport function that calls other transport
-functions as follows:
+To use multiple transports by passing it as an Array:
 
 ```javascript
 import {
@@ -613,12 +686,12 @@ var customTransport: transportFunctionType = (props) => {
 };
 
 const log = logger.createLogger({
-  transport: (props) => {
-    consoleTransport(props);
-    fileAsyncTransport(props);
-    sentryTransport(props);
-    customTransport(props);
-  },
+  transport: [
+    consoleTransport,
+    fileAsyncTransport,
+    sentryTransport,
+    customTransport,
+  ],
   transportOptions: {
     FS: RNFS,
     SENTRY: Sentry,
@@ -628,5 +701,20 @@ const log = logger.createLogger({
       error: "redBright",
     },
   },
+});
+```
+
+### Improve performance
+
+In react-native you can improve performance by setting the `InteractionManager.runAfterInteractions` async function:
+
+```javascript
+import { logger } from "react-native-logs";
+
+const InteractionManager = require("react-native").InteractionManager;
+
+const log = logger.createLogger({
+  async: true,
+  asyncFunc: InteractionManager.runAfterInteractions,
 });
 ```
