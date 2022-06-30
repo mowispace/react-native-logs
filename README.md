@@ -4,7 +4,7 @@
 
 # react-native-logs
 
-Performance-aware simple logger for React-Native Expo (managed and bare) and react-native-web with custom levels and transports (colored console,
+Performance-aware simple logger for React-Native, Expo (managed and bare) and react-native-web with custom levels and transports (colored console,
 file writing, etc.).
 
 Each level has its severity: a number that represents its importance in
