@@ -1,3 +1,8 @@
+## [5.0.1] - 04-07-2022
+
+- Fixed fileName in fileAsyncTranport
+- in fileName now you can pass {date-today}
+
 ## [5.0.0] - 30-06-2022
 
 - Simplified init configuration (thanks to @Harjot1Singh)
