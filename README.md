@@ -360,14 +360,14 @@ log.err("Print this with console.error");
 This transport requires the installation of `react-native-fs`([install tutorial here](https://github.com/itinance/react-native-fs)) or `expo-file-system`, and allows you to save the
 logs on the `<filePath>/<fileName>.txt` file.
 
-If you want a new file to be created every day you can use `date-today` as fileName so the log files will be saved as: `logs_dd-mm-yyyy`.
+If you want a new file to be created every day you can use `{date-today}` in the fileName: `app_logs_{date-today}.log` -> `app_logs_DD-MM-YYYY.log`.
 
 #### Accepted Options:
 
 | name     | type   | description                                                                | default                                                             |
 | -------- | ------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | FS       | Object | MANDATORY, filesystem instance for the transport (RNFS or expo FileSystem) | `null`                                                              |
-| fileName | string | set logs file name (use `date-today` for current date)                     | `log`                                                               |
+| fileName | string | set logs file name (insert `{date-today}` for current date)                | `log`                                                               |
 | filePath | string | set logs file path                                                         | `RNFS.DocumentDirectoryPath` or expo `FileSystem.documentDirectory` |
 
 #### Example:
@@ -392,7 +392,7 @@ const config = {
     /* EXPO:
      * FS: FileSystem,
      */
-    fileName: `date-today`, // Create a new file every day
+    fileName: `logs_{date-today}`, // Create a new file every day
   },
 };
 
