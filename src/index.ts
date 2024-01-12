@@ -49,7 +49,7 @@ let stringifyFunc = (msg: any): string => {
     stringMsg = msg.message + " ";
   } else {
     try {
-      stringMsg = "\n" + JSON.stringify(msg, undefined, 2) + "\n";
+      stringMsg = "\n" + JSON.stringify(msg, Object.getOwnPropertyNames(msg), 2) + "\n";
     } catch (error) {
       stringMsg += "Undefined Message";
     }
