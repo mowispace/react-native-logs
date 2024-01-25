@@ -44,12 +44,13 @@ let stringifyFunc = (msg: any): string => {
   if (typeof msg === "string") {
     stringMsg = msg + " ";
   } else if (typeof msg === "function") {
-    stringMsg = "[function] ";
+    stringMsg = "[function " + msg.name + "()] ";
   } else if (msg && msg.stack && msg.message) {
     stringMsg = msg.message + " ";
   } else {
     try {
-      stringMsg = "\n" + JSON.stringify(msg, Object.getOwnPropertyNames(msg), 2) + "\n";
+      stringMsg =
+        "\n" + JSON.stringify(msg, Object.getOwnPropertyNames(msg), 2) + "\n";
     } catch (error) {
       stringMsg += "Undefined Message";
     }

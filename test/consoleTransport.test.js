@@ -22,10 +22,11 @@ test("The log function should print string, beutified objects and functions in c
   outputExp = `{\n  \"message\": \"message\"\n}`;
   expect(outputData).toBe(outputExp);
   outputData = "";
-  log.debug(() => {
-    return true;
-  });
-  outputExp = `[function]`;
+  function testFunc() {
+    return "test";
+  }
+  log.debug(testFunc);
+  outputExp = `[function testFunc()]`;
   expect(outputData).toBe(outputExp);
 });
 
