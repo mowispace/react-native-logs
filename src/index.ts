@@ -81,6 +81,9 @@ type configLoggerType = {
   async?: boolean;
   asyncFunc?: Function;
   stringifyFunc?: (msg: any) => string;
+  formatFunc?:
+    | null
+    | ((level: string, extension: string | null, msgs: any) => string);
   dateFormat?: string | ((date: Date) => string); //"time" | "local" | "utc" | "iso" | "function";
   printLevel?: boolean;
   printDate?: boolean;
@@ -114,6 +117,7 @@ const defaultLogger = {
   async: false,
   asyncFunc: asyncFunc,
   stringifyFunc: stringifyFunc,
+  formatFunc: null,
   printLevel: true,
   printDate: true,
   dateFormat: "time",
@@ -132,6 +136,9 @@ class logs {
   private _async: boolean;
   private _asyncFunc: Function;
   private _stringifyFunc: (msg: any) => string;
+  private _formatFunc?:
+    | null
+    | ((level: string, extension: string | null, msgs: any) => string);
   private _dateFormat: string | ((date: Date) => string);
   private _printLevel: boolean;
   private _printDate: boolean;
@@ -152,6 +159,8 @@ class logs {
     this._async = config.async;
 
     this._stringifyFunc = config.stringifyFunc;
+
+    this._formatFunc = config.formatFunc;
 
     this._dateFormat = config.dateFormat;
 
@@ -240,6 +249,10 @@ class logs {
     extension: string | null,
     msgs: any
   ): string => {
+    if (typeof this._formatFunc === "function") {
+      return this._formatFunc(level, extension, msgs);
+    }
+
     let nameTxt: string = "";
     if (extension) {
       nameTxt = `${extension} | `;
