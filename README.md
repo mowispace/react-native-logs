@@ -64,21 +64,21 @@ and error levels.
 You can customize the logger by passing a config object to the `createLogger` method (see example
 below). All params are optional and will take default values if no corresponding argument is passed.
 
-| Parameter         | Type                   | Description                                                     | Default                                 |
-| ----------------- | ---------------------- | --------------------------------------------------------------- | --------------------------------------- |
-| severity          | string                 | Init logs severity (least important level you want to see)      | `debug` (or the first custom level)     |
-| transport         | function or [function] | The transport function/s for logs (see below for presets)       | The preset transport `consoleTransport` |
-| transportOptions  | Object                 | Set custom options for transports                               | `null`                                  |
-| levels            | Object                 | Set custom log levels: {name:power}                             | `false`                                 |
-| async             | boolean                | Set to true for async logs (to improve app performance)         | `true`                                  |
-| asyncFunc         | function               | Set a cutom async function `(cb: Function)=>{return cb()}`      | `setTimeout`                            |
-| stringifyFunc     | function               | Set a cutom stringify function `(msg: any)=>string`             | a customized `JSON.stringify`           |
-| formatFunc        | function               | Set a custom format function `(level: string, extension: string | null, msg: any)=>string`                |
-| dateFormat        | string or function     | `time`, `local`, `utc`, `iso` or `(date: Date) => string`       | `time`                                  |
-| printLevel        | boolean                | Choose whether to print the log level                           | `true`                                  |
-| printDate         | boolean                | Choose whether to print the log date/time                       | `true`                                  |
-| enabled           | boolean                | Enable or disable logging                                       | `true`                                  |
-| enabledExtensions | string[]               | Enable only certain namespaces                                  | `null`                                  |
+| Parameter         | Type                   | Description                                                                           | Default                                 |
+| ----------------- | ---------------------- | ------------------------------------------------------------------------------------- | --------------------------------------- |
+| severity          | string                 | Init logs severity (least important level you want to see)                            | `debug` (or the first custom level)     |
+| transport         | function or [function] | The transport function/s for logs (see below for presets)                             | The preset transport `consoleTransport` |
+| transportOptions  | Object                 | Set custom options for transports                                                     | `null`                                  |
+| levels            | Object                 | Set custom log levels: {name:power}                                                   | `false`                                 |
+| async             | boolean                | Set to true for async logs (to improve app performance)                               | `true`                                  |
+| asyncFunc         | function               | Set a cutom async function `(cb: Function)=>{return cb()}`                            | `setTimeout`                            |
+| stringifyFunc     | function               | Set a cutom stringify function `(msg: any)=>string`                                   | a customized `JSON.stringify`           |
+| formatFunc        | function               | Set a custom format function `(level: string, extension?: string, msg: any) =>string` | default string format funcion           |
+| dateFormat        | string or function     | `time`, `local`, `utc`, `iso` or `(date: Date) => string`                             | `time`                                  |
+| printLevel        | boolean                | Choose whether to print the log level                                                 | `true`                                  |
+| printDate         | boolean                | Choose whether to print the log date/time                                             | `true`                                  |
+| enabled           | boolean                | Enable or disable logging                                                             | `true`                                  |
+| enabledExtensions | string[]               | Enable only certain namespaces                                                        | `null`                                  |
 
 #### Example with common configuration
 
