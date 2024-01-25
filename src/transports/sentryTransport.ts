@@ -9,14 +9,33 @@ const sentryTransport: transportFunctionType = (props) => {
     );
   }
 
-  if (props.rawMsg && props.rawMsg.stack && props.rawMsg.message) {
-    // this is probably a JS error
-    props.options.SENTRY.captureException(props.rawMsg);
-  } else {
-    props.options.SENTRY.captureException(props.msg);
+  let isError = true;
+
+  if (props?.options?.errorLevels) {
+    isError = false;
+    if (Array.isArray(props?.options?.errorLevels)) {
+      if (props.options.errorLevels.includes(props.level.text)) {
+        isError = true;
+      }
+    } else {
+      if (props.options.errorLevels === props.level.text) {
+        isError = true;
+      }
+    }
   }
 
-  return true;
+  try {
+    if (isError) {
+      props.options.SENTRY.captureException(props.msg);
+    } else {
+      props.options.SENTRY.addBreadcrumb(props.msg);
+    }
+    return true;
+  } catch (error) {
+    throw Error(
+      `react-native-logs: sentryTransport - Error oon send msg to Sentry`
+    );
+  }
 };
 
 export { sentryTransport };
