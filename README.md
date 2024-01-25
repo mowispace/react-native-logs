@@ -162,6 +162,8 @@ log.trace("message"); // correct log call
 log.silly("message"); // typescript error, "silly" method does not exist
 ```
 
+If you add `noUncheckedIndexedAccess: true` in your TypeScript configuration file, you MUST define log typing as described above.
+
 ### Custom transport
 
 You can write your own transport to send logs to a cloud service, save it in to a database, or do
@@ -361,7 +363,7 @@ log.err("Print this with console.error");
 This transport requires the installation of `react-native-fs`([install tutorial here](https://github.com/itinance/react-native-fs)) or `expo-file-system`, and allows you to save the
 logs on the `<filePath>/<fileName>.txt` file.
 
-If you want a new file to be created every day you can use `{date-today}` in the fileName: `app_logs_{date-today}.log` -> `app_logs_DD-MM-YYYY.log`.
+If you want a new file to be created every day you can use `{date-today}` in the fileName: `app_logs_{date-today}.log` -> `app_logs_D-M-YYYY.log`.
 
 #### Accepted Options:
 
