@@ -145,6 +145,7 @@ class logs {
   private _printDate: boolean;
   private _enabled: boolean;
   private _enabledExtensions: string[] | null = null;
+  private _disabledExtensions: string[] | null = null;
   private _extensions: string[] = [];
   private _extendedLogs: { [key: string]: extendedLogType } = {};
   private _originalConsole?: typeof console;
@@ -311,10 +312,13 @@ class logs {
 
   /** Return true if extension is enabled */
   private _isExtensionEnabled = (extension: string): boolean => {
-    if (!this._enabledExtensions) {
-      return true;
+    if (this._disabledExtensions?.length) {
+      return !this._disabledExtensions.includes(extension);
     }
-    if (this._enabledExtensions.includes(extension)) {
+    if (
+      !this._enabledExtensions ||
+      this._enabledExtensions.includes(extension)
+    ) {
       return true;
     }
     return false;
@@ -392,20 +396,25 @@ class logs {
       if (this._enabledExtensions) {
         if (!this._enabledExtensions.includes(extension)) {
           this._enabledExtensions.push(extension);
-          return true;
-        } else {
-          return true;
         }
-      } else {
-        this._enabledExtensions = [];
-        this._enabledExtensions.push(extension);
-        return true;
       }
     } else {
       throw Error(
         `[react-native-logs:enable] ERROR: Extension [${extension}] not exist`
       );
     }
+
+    if (this._disabledExtensions?.includes(extension)) {
+      let extIndex = this._disabledExtensions.indexOf(extension);
+      if (extIndex > -1) {
+        this._disabledExtensions.splice(extIndex, 1);
+      }
+      if (!this._disabledExtensions.length) {
+        this._disabledExtensions = null;
+      }
+    }
+
+    return true;
   };
 
   /** Disable logger or extension */
@@ -420,15 +429,23 @@ class logs {
         if (extIndex > -1) {
           this._enabledExtensions.splice(extIndex, 1);
         }
-        return true;
-      } else {
-        return true;
+        if (!this._enabledExtensions.length) {
+          this._enabledExtensions = null;
+        }
       }
     } else {
       throw Error(
         `[react-native-logs:disable] ERROR: Extension [${extension}] not exist`
       );
     }
+
+    if (!this._disabledExtensions) {
+      this._disabledExtensions = [];
+      this._disabledExtensions.push(extension);
+    } else if (!this._disabledExtensions.includes(extension)) {
+      this._disabledExtensions.push(extension);
+    }
+    return true;
   };
 
   /** Return all created extensions */

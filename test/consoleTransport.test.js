@@ -181,3 +181,22 @@ test("The disabled namespaced log function should not print", () => {
   var outputExp = ``;
   expect(outputData).toBe(outputExp);
 });
+
+test("The disabled/enabled namespaced in runtime log function should not print/print", () => {
+  var log = rnlogs.logger.createLogger({
+    transport: transport,
+    printDate: false,
+  });
+  const namespacedLog = log.extend("NAMESPACE");
+  var outputData = "";
+  var storeLog = (inputs) => (outputData += inputs);
+  console["log"] = jest.fn(storeLog);
+  log.disable("NAMESPACE");
+  namespacedLog.debug("message");
+  var outputExp = ``;
+  expect(outputData).toBe(outputExp);
+  log.enable("NAMESPACE");
+  namespacedLog.debug("message");
+  var outputExp = `NAMESPACE | DEBUG : message`;
+  expect(outputData).toBe(outputExp);
+});
