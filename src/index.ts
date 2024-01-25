@@ -234,10 +234,18 @@ class logs {
     };
     if (Array.isArray(this._transport)) {
       for (let i = 0; i < this._transport.length; i++) {
-        this._transport[i](transportProps);
+        if (typeof this._transport[i] !== "function") {
+          throw Error(`[react-native-logs] ERROR: transport is not a function`);
+        } else {
+          this._transport[i](transportProps);
+        }
       }
     } else {
-      this._transport(transportProps);
+      if (typeof this._transport !== "function") {
+        throw Error(`[react-native-logs] ERROR: transport is not a function`);
+      } else {
+        this._transport(transportProps);
+      }
     }
     return true;
   };
