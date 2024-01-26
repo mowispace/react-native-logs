@@ -77,6 +77,7 @@ below). All params are optional and will take default values if no corresponding
 | dateFormat        | string or function     | `time`, `local`, `utc`, `iso` or `(date: Date) => string`                              | `time`                                  |
 | printLevel        | boolean                | Choose whether to print the log level                                                  | `true`                                  |
 | printDate         | boolean                | Choose whether to print the log date/time                                              | `true`                                  |
+| fixedExtLvlLength | boolean                | Ensure consistent character count alignment when printing extensions and levels        | `false`                                 |
 | enabled           | boolean                | Enable or disable logging                                                              | `true`                                  |
 | enabledExtensions | string[]               | Enable only certain namespaces                                                         | `null`                                  |
 
@@ -105,6 +106,7 @@ const defaultConfig = {
   dateFormat: "time",
   printLevel: true,
   printDate: true,
+  fixedExtLvlLength: false,
   enabled: true,
 };
 

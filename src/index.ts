@@ -88,6 +88,7 @@ type configLoggerType = {
   dateFormat?: string | ((date: Date) => string); //"time" | "local" | "utc" | "iso" | "function";
   printLevel?: boolean;
   printDate?: boolean;
+  fixedExtLvlLength?: boolean;
   enabled?: boolean;
   enabledExtensions?: string[] | string | null;
 };
@@ -122,6 +123,7 @@ const defaultLogger = {
   printLevel: true,
   printDate: true,
   dateFormat: "time",
+  fixedExtLvlLength: false,
   enabled: true,
   enabledExtensions: null,
   printFileLine: false,
@@ -143,12 +145,15 @@ class logs {
   private _dateFormat: string | ((date: Date) => string);
   private _printLevel: boolean;
   private _printDate: boolean;
+  private _fixedExtLvlLength: boolean;
   private _enabled: boolean;
   private _enabledExtensions: string[] | null = null;
   private _disabledExtensions: string[] | null = null;
   private _extensions: string[] = [];
   private _extendedLogs: { [key: string]: extendedLogType } = {};
   private _originalConsole?: typeof console;
+  private _maxLevelsChars: number = 0;
+  private _maxExtensionsChars: number = 0;
 
   constructor(config: Required<configLoggerType>) {
     this._levels = config.levels;
@@ -161,13 +166,11 @@ class logs {
     this._async = config.async;
 
     this._stringifyFunc = config.stringifyFunc;
-
     this._formatFunc = config.formatFunc;
-
     this._dateFormat = config.dateFormat;
-
     this._printLevel = config.printLevel;
     this._printDate = config.printDate;
+    this._fixedExtLvlLength = config.fixedExtLvlLength;
 
     this._enabled = config.enabled;
 
@@ -175,6 +178,13 @@ class logs {
       this._enabledExtensions = config.enabledExtensions;
     } else if (typeof config.enabledExtensions === "string") {
       this._enabledExtensions = [config.enabledExtensions];
+    }
+
+    /** find max levels characters */
+    if (this._fixedExtLvlLength) {
+      this._maxLevelsChars = Math.max(
+        ...Object.keys(this._levels).map((k) => k.length)
+      );
     }
 
     /** Bind correct log levels methods */
@@ -265,7 +275,10 @@ class logs {
 
     let nameTxt: string = "";
     if (extension) {
-      nameTxt = `${extension} | `;
+      let extStr = this._fixedExtLvlLength
+        ? extension?.padEnd(this._maxExtensionsChars, " ")
+        : extension;
+      nameTxt = `${extStr} | `;
     }
 
     let dateTxt: string = "";
@@ -294,7 +307,10 @@ class logs {
 
     let levelTxt = "";
     if (this._printLevel) {
-      levelTxt = `${level.toUpperCase()} : `;
+      levelTxt = this._fixedExtLvlLength
+        ? level.padEnd(this._maxLevelsChars, " ")
+        : level;
+      levelTxt = `${levelTxt.toUpperCase()} : `;
     }
 
     let stringMsg: string = dateTxt + nameTxt + levelTxt;
@@ -390,6 +406,9 @@ class logs {
         );
       };
     });
+    this._maxExtensionsChars = Math.max(
+      ...this._extensions.map((ext: string) => ext.length)
+    );
     return extendedLog;
   };
 
