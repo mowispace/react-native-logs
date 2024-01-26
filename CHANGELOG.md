@@ -1,3 +1,12 @@
+## [5.1.0] - 26-01-2024
+
+- Ensures JSON.stringify correctly (Thanks @iago-f-s-e)
+- Added formatFunc option (Thanks @chmac)
+- Added ability to set errorLevels on sentry transport
+- Correct format function type name in default stringify func
+- Added the confg option fixedExtLvlLength, allowing for uniform extension and level lengths by adding spaces, ensuring aligned logs
+- Minor bugfix
+
 ## [5.0.1] - 04-07-2022
 
 - Fixed fileName in fileAsyncTranport

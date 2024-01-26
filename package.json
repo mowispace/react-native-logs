@@ -1,6 +1,6 @@
 {
   "name": "react-native-logs",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "description": "Performance-aware simple logger for React-Native with namespaces, custom levels and custom transports (colored console, file writing, etc.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/onubo/react-native-logs.git"
+    "url": "git+https://github.com/mowispace/react-native-logs.git"
   },
   "keywords": [
     "log",
@@ -33,11 +33,11 @@
   "author": "Alessandro Bottamedi - a.bottamedi@me.com",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/onubo/react-native-logs/issues"
+    "url": "https://github.com/mowispace/react-native-logs/issues"
   },
-  "homepage": "https://github.com/onubo/react-native-logs#readme",
+  "homepage": "https://github.com/mowispace/react-native-logs#readme",
   "devDependencies": {
-    "jest": "^28.1.2",
-    "typescript": "^4.7.4"
+    "jest": "^29.7.0",
+    "typescript": "^5.3.3"
   }
 }
