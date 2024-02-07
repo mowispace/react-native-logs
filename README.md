@@ -159,6 +159,8 @@ const config = {
 
 var log = logger.createLogger<"trace" | "info" | "error">(config);
 
+// Or if you'd like to change only the original object you can do
+// var log = logger.createLogger<keyof typeof config.levels>(config);
 log.trace("message"); // correct log call
 
 log.silly("message"); // typescript error, "silly" method does not exist
