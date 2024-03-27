@@ -683,10 +683,14 @@ import {
   consoleTransport,
   fileAsyncTransport,
   sentryTransport,
+  crashlyticsTransport,
   transportFunctionType,
 } from "react-native-logs";
 import RNFS from "react-native-fs";
 import * as Sentry from "@sentry/react-native";
+import crashlytics from "@react-native-firebase/crashlytics";
+
+const crashlyticsModule = crashlytics();
 
 var customTransport: transportFunctionType = (props) => {
   // Do here whatever you want with the log message
@@ -698,11 +702,13 @@ const log = logger.createLogger({
     consoleTransport,
     fileAsyncTransport,
     sentryTransport,
+    crashlyticsTransport,
     customTransport,
   ],
   transportOptions: {
     FS: RNFS,
     SENTRY: Sentry,
+    CRASHLYTICS: crashlyticsModule,
     colors: {
       info: "blueBright",
       warn: "yellowBright",
