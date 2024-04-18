@@ -109,7 +109,14 @@ const reservedKey: string[] = [
 const defaultLogger = {
   severity: "debug",
   transport: consoleTransport,
-  transportOptions: {},
+  transportOptions: {
+    colors: {
+      debug: "gray",
+      info: "white",
+      warn: "yellow",
+      error: "red",
+    },
+  },
   levels: {
     debug: 0,
     info: 1,
