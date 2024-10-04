@@ -416,10 +416,10 @@ Send logs to [Sentry](https://github.com/getsentry/sentry-react-native). The tra
 
 #### Accepted Options:
 
-| name        | type            | description                                                                      | default |
-| ----------- | --------------- | -------------------------------------------------------------------------------- | ------- |
-| SENTRY      | Object          | MANDATORY, sentry instance for the transport                                     | `null`  |
-| errorLevels | Array or string | Specify witch log levels are errors (If null, all msg will be treated as errors) | `null`  |
+| name        | type                    | description                                                                      | default |
+| ----------- | ----------------------- | -------------------------------------------------------------------------------- | ------- |
+| SENTRY      | Object                  | MANDATORY, Sentry instance for the transport                                     | `null`  |
+| errorLevels | Array<string> or string | Specify which log levels are errors (If null, all msg will be treated as errors) | `null`  |
 
 #### Example:
 
@@ -436,7 +436,7 @@ const config = {
   transport: sentryTransport,
   transportOptions: {
     SENTRY: Sentry,
-    errorLeves: "error",
+    errorLevels: "error",
   },
 };
 
