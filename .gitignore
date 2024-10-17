@@ -5,3 +5,6 @@ dist
 
 .DS_store
 .idea
+
+.yarn
+.pnp.*

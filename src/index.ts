@@ -40,6 +40,22 @@ let asyncFunc = (cb: Function) => {
   }, 0);
 };
 
+function stringifyAllProperties(obj: any): string {
+  return JSON.stringify(
+    obj,
+    function (key, value) {
+      if (value && typeof value === "object") {
+        return Object.getOwnPropertyNames(value).reduce((acc: any, prop) => {
+          acc[prop] = value[prop];
+          return acc;
+        }, {});
+      }
+      return value;
+    },
+    2
+  );
+}
+
 let stringifyFunc = (msg: any): string => {
   let stringMsg = "";
   if (typeof msg === "string") {
@@ -50,8 +66,7 @@ let stringifyFunc = (msg: any): string => {
     stringMsg = msg.message + " ";
   } else {
     try {
-      stringMsg =
-        "\n" + JSON.stringify(msg, Object.getOwnPropertyNames(msg), 2) + "\n";
+      stringMsg = "\n" + stringifyAllProperties(msg) + "\n";
     } catch (error) {
       stringMsg += "Undefined Message";
     }
@@ -550,7 +565,10 @@ const createLogger = <Y extends string>(config?: configLoggerType) => {
   };
 
   // Merge all non undefined values
-  const mergedConfig = { ...defaultLogger, ...JSON.parse(JSON.stringify(config)) };
+  const mergedConfig = {
+    ...defaultLogger,
+    ...JSON.parse(JSON.stringify(config)),
+  };
 
   return new logs(mergedConfig) as unknown as Omit<logs, "extend"> &
     loggerType &

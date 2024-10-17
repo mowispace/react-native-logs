@@ -55,6 +55,23 @@ const RNFSappend = async (FS: any, file: string, msg: string) => {
   }
 };
 
+const dateReplacer = (filename: string, type: "eu" | "us" | "iso") => {
+  let today = new Date();
+  let d = today.getDate();
+  let m = today.getMonth() + 1;
+  let y = today.getFullYear();
+  switch (type) {
+    case "eu":
+      return filename.replace("{date-today}", `${d}-${m}-${y}`);
+    case "us":
+      return filename.replace("{date-today}", `${m}-${d}-${y}`);
+    case "iso":
+      return filename.replace("{date-today}", `${y}-${m}-${d}`);
+    default:
+      return filename.replace("{date-today}", `${d}-${m}-${y}`);
+  }
+};
+
 const fileAsyncTransport: transportFunctionType = (props) => {
   if (!props) return false;
 
@@ -85,12 +102,8 @@ const fileAsyncTransport: transportFunctionType = (props) => {
   }
 
   if (props?.options?.fileName) {
-    let today = new Date();
-    let d = today.getDate();
-    let m = today.getMonth() + 1;
-    let y = today.getFullYear();
     fileName = props.options.fileName;
-    fileName = fileName.replace("{date-today}", `${d}-${m}-${y}`);
+    fileName = dateReplacer(fileName, props.options?.fileNameDateType);
   }
 
   if (props?.options?.filePath) filePath = props.options.filePath;

@@ -33,7 +33,7 @@ const crashlyticsTransport: transportFunctionType = (props) => {
     return true;
   } catch (error) {
     throw Error(
-      `react-native-logs: crashlyticsTransport - Error oon send msg to crashlytics`
+      `react-native-logs: crashlyticsTransport - Error on send msg to crashlytics`
     );
   }
 };

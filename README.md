@@ -371,11 +371,12 @@ If you want a new file to be created every day you can use `{date-today}` in the
 
 #### Accepted Options:
 
-| name     | type   | description                                                                | default                                                             |
-| -------- | ------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| FS       | Object | MANDATORY, filesystem instance for the transport (RNFS or expo FileSystem) | `null`                                                              |
-| fileName | string | set logs file name (insert `{date-today}` for current date)                | `log`                                                               |
-| filePath | string | set logs file path                                                         | `RNFS.DocumentDirectoryPath` or expo `FileSystem.documentDirectory` |
+| name             | type            | description                                                                       | default                                                             |
+| ---------------- | --------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| FS               | Object          | MANDATORY, filesystem instance for the transport (RNFS or expo FileSystem)        | `null`                                                              |
+| fileName         | string          | set logs file name (insert `{date-today}` for current date)                       |
+| fileNameDateType | `eu`,`us`,`iso` | `{date-today}` date type `eu` "DD-MM-YYYY", `us` "MM-DD-YYYY", `iso` "YYYY-MM-DD" | `eu`                                                                |
+| filePath         | string          | set logs file path                                                                | `RNFS.DocumentDirectoryPath` or expo `FileSystem.documentDirectory` |
 
 #### Example:
 

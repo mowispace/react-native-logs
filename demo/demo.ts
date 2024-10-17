@@ -45,4 +45,9 @@ userLog.error("User wrong password");
 
 rootLog.info("Log Object:", { a: 1, b: 2 });
 
+rootLog.info("Log nested Object:", {
+  a: 1,
+  b: [{ name: "test", id: 1, arr: [{ arrId: 1 }] }],
+});
+
 rootLog.info("Multiple", "strings", ["array1", "array2"]);

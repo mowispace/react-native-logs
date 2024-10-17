@@ -1,3 +1,12 @@
+## [5.2.0] - 17-10-2024
+
+- Ensures JSON.stringify print nested objects correctly (issue #97)
+- Only merge non undefined config values (pr #105 by @SYoder1)
+- Correct README for Sentry logging (pr #104 by @ssorallen)
+- Add crashlytics transport (pr #91 by @chad-aijinet)
+- Added fileNameDateType option to the file transport for selecting the date format
+- Minor bugfix
+
 ## [5.1.0] - 26-01-2024
 
 - Ensures JSON.stringify correctly (Thanks @iago-f-s-e)
