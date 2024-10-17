@@ -735,3 +735,7 @@ const log = logger.createLogger({
   asyncFunc: InteractionManager.runAfterInteractions,
 });
 ```
+
+## Sponsors
+
+<a href="https://mowi.space"><img src="https://serve.mowi.space/assets/logos/mowi_purple.png" width="350"/></a>
