@@ -549,7 +549,8 @@ const createLogger = <Y extends string>(config?: configLoggerType) => {
     extend: (extension: string) => loggerType;
   };
 
-  const mergedConfig = { ...defaultLogger, ...config };
+  // Merge all non undefined values
+  const mergedConfig = { ...defaultLogger, ...JSON.parse(JSON.stringify(config)) };
 
   return new logs(mergedConfig) as unknown as Omit<logs, "extend"> &
     loggerType &
