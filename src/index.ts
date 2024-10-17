@@ -32,6 +32,7 @@ import { consoleTransport } from "./transports/consoleTransport";
 import { mapConsoleTransport } from "./transports/mapConsoleTransport";
 import { fileAsyncTransport } from "./transports/fileAsyncTransport";
 import { sentryTransport } from "./transports/sentryTransport";
+import { crashlyticsTransport } from "./transports/crashlyticsTransport";
 
 let asyncFunc = (cb: Function) => {
   setTimeout(() => {
@@ -563,6 +564,7 @@ export {
   mapConsoleTransport,
   fileAsyncTransport,
   sentryTransport,
+  crashlyticsTransport,
 };
 
 export type { transportFunctionType, configLoggerType, defLvlType };

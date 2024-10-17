@@ -159,6 +159,8 @@ const config = {
 
 var log = logger.createLogger<"trace" | "info" | "error">(config);
 
+// Or if you'd like to change only the original object you can do
+// var log = logger.createLogger<keyof typeof config.levels>(config);
 log.trace("message"); // correct log call
 
 log.silly("message"); // typescript error, "silly" method does not exist
@@ -683,10 +685,14 @@ import {
   consoleTransport,
   fileAsyncTransport,
   sentryTransport,
+  crashlyticsTransport,
   transportFunctionType,
 } from "react-native-logs";
 import RNFS from "react-native-fs";
 import * as Sentry from "@sentry/react-native";
+import crashlytics from "@react-native-firebase/crashlytics";
+
+const crashlyticsModule = crashlytics();
 
 var customTransport: transportFunctionType = (props) => {
   // Do here whatever you want with the log message
@@ -698,11 +704,13 @@ const log = logger.createLogger({
     consoleTransport,
     fileAsyncTransport,
     sentryTransport,
+    crashlyticsTransport,
     customTransport,
   ],
   transportOptions: {
     FS: RNFS,
     SENTRY: Sentry,
+    CRASHLYTICS: crashlyticsModule,
     colors: {
       info: "blueBright",
       warn: "yellowBright",
