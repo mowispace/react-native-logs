@@ -1,6 +1,6 @@
 {
   "name": "react-native-logs",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "Performance-aware simple logger for React-Native with namespaces, custom levels and custom transports (colored console, file writing, etc.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

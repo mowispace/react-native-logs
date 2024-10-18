@@ -1,3 +1,7 @@
+## [5.2.1] - 18-10-2024
+
+- Minor bugfix
+
 ## [5.2.0] - 17-10-2024
 
 - Ensures JSON.stringify print nested objects correctly (issue #97)
