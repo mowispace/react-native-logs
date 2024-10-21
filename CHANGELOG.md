@@ -1,3 +1,7 @@
+## [5.2.2] - 21-10-2024
+
+- Reverting to the old merge config function
+
 ## [5.2.1] - 18-10-2024
 
 - Minor bugfix

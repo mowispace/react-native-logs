@@ -564,8 +564,7 @@ const createLogger = <Y extends string>(config?: configLoggerType) => {
     extend: (extension: string) => loggerType;
   };
 
-  // Merge all non undefined values
-  let mergeConfig = config ? JSON.parse(JSON.stringify(config)) : {};
+  let mergeConfig = config ? { ...config } : {};
 
   const mergedConfig = {
     ...defaultLogger,
