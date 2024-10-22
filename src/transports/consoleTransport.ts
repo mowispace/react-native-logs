@@ -1,6 +1,6 @@
 import { transportFunctionType } from "../index";
 
-const availableColors: any = {
+const availableColors = {
   default: null,
   black: 30,
   red: 31,
@@ -18,11 +18,21 @@ const availableColors: any = {
   magentaBright: 95,
   cyanBright: 96,
   whiteBright: 97,
-};
+} as const;
 
 const resetColors = "\x1b[0m";
 
-const consoleTransport: transportFunctionType = (props) => {
+type Color = keyof typeof availableColors;
+
+export type ConsoleTransportOptions = {
+  colors?: Record<string, Color>;
+  extensionColors?: Record<string, Color>;
+  consoleFunc?: (msg: string) => void;
+};
+
+const consoleTransport: transportFunctionType<ConsoleTransportOptions> = (
+  props
+) => {
   if (!props) return false;
 
   let msg = props.msg;
@@ -40,13 +50,9 @@ const consoleTransport: transportFunctionType = (props) => {
   if (props.extension && props.options?.extensionColors) {
     let extensionColor = "\x1b[7m";
 
-    if (
-      props.options.extensionColors[props.extension] &&
-      availableColors[props.options.extensionColors[props.extension]]
-    ) {
-      extensionColor = `\x1b[${
-        availableColors[props.options.extensionColors[props.extension]] + 10
-      }m`;
+    const extColor = props.options.extensionColors[props.extension];
+    if (extColor && availableColors[extColor]) {
+      extensionColor = `\x1b[${availableColors[extColor] + 10}m`;
     }
 
     let extStart = color ? resetColors + extensionColor : extensionColor;

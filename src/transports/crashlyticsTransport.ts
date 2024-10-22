@@ -1,6 +1,16 @@
 import { transportFunctionType } from "../index";
 
-const crashlyticsTransport: transportFunctionType = (props) => {
+export type CrashlyticsTransportOption = {
+  CRASHLYTICS: {
+    recordError: (msg: string) => void;
+    log: (msg: string) => void;
+  };
+  errorLevels?: string | Array<string>;
+};
+
+const crashlyticsTransport: transportFunctionType<
+  CrashlyticsTransportOption
+> = (props) => {
   if (!props) return false;
 
   if (!props?.options?.CRASHLYTICS) {

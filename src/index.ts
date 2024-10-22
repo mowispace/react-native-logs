@@ -75,25 +75,43 @@ let stringifyFunc = (msg: any): string => {
 };
 
 /** Types Declaration */
-type transportFunctionType = (props: {
-  msg: any;
-  rawMsg: any;
+type transportFunctionType<T extends object> = (props: {
+  msg: string;
+  rawMsg: unknown;
   level: { severity: number; text: string };
   extension?: string | null;
-  options?: any;
-}) => any;
+  options?: T;
+}) => void;
+
 type levelsType = { [key: string]: number };
+
 type logMethodType = (
   level: string,
   extension: string | null,
   ...msgs: any[]
 ) => boolean;
 type levelLogMethodType = (...msgs: any[]) => boolean;
+
 type extendedLogType = { [key: string]: levelLogMethodType | any };
-type configLoggerType = {
+
+type ExtractOptions<T> = T extends transportFunctionType<infer U> ? U : never;
+
+type MergeTransportOptions<T> = T extends (infer U)[]
+  ? ExtractOptions<U>
+  : ExtractOptions<T>;
+
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
+  k: infer I extends U
+) => void
+  ? I
+  : never;
+
+type configLoggerType<
+  T extends transportFunctionType<object> | transportFunctionType<object>[]
+> = {
   severity?: string;
-  transport?: transportFunctionType | transportFunctionType[];
-  transportOptions?: any;
+  transport?: T;
+  transportOptions?: UnionToIntersection<MergeTransportOptions<T>>;
   levels?: levelsType;
   async?: boolean;
   asyncFunc?: Function;
@@ -144,14 +162,22 @@ const defaultLogger = {
   enabledExtensions: null,
   printFileLine: false,
   fileLineOffset: 0,
+} as const;
+
+type OptionsWithConsoleFunc = {
+  consoleFunc?: (msg: string) => void;
 };
 
 /** Logger Main Class */
-class logs {
+class logs<
+  T extends
+    | transportFunctionType<OptionsWithConsoleFunc>
+    | transportFunctionType<OptionsWithConsoleFunc>[]
+> {
   private _levels: levelsType;
   private _level: string;
-  private _transport: transportFunctionType | transportFunctionType[];
-  private _transportOptions: any;
+  private _transport: T;
+  private _transportOptions: UnionToIntersection<MergeTransportOptions<T>>;
   private _async: boolean;
   private _asyncFunc: Function;
   private _stringifyFunc: (msg: any) => string;
@@ -171,7 +197,7 @@ class logs {
   private _maxLevelsChars: number = 0;
   private _maxExtensionsChars: number = 0;
 
-  constructor(config: Required<configLoggerType>) {
+  constructor(config: Required<configLoggerType<T>>) {
     this._levels = config.levels;
     this._level = config.severity ?? Object.keys(this._levels)[0];
 
@@ -553,7 +579,14 @@ type defLvlType = "debug" | "info" | "warn" | "error";
  * all subsequent levels to the one selected will be exposed (ordered by severity asc)
  * through the transport
  */
-const createLogger = <Y extends string>(config?: configLoggerType) => {
+const createLogger = <
+  Y extends string,
+  K extends
+    | transportFunctionType<any>
+    | transportFunctionType<any>[] = transportFunctionType<{}>
+>(
+  config?: configLoggerType<K>
+) => {
   type levelMethods<levels extends string> = {
     [key in levels]: (...args: unknown[]) => void;
   };
@@ -564,14 +597,14 @@ const createLogger = <Y extends string>(config?: configLoggerType) => {
     extend: (extension: string) => loggerType;
   };
 
-  let mergeConfig = config ? { ...config } : {};
+  let mergeConfig = config ? { ...config } : ({} as object);
 
   const mergedConfig = {
     ...defaultLogger,
     ...mergeConfig,
   };
 
-  return new logs(mergedConfig) as unknown as Omit<logs, "extend"> &
+  return new logs(mergedConfig) as unknown as Omit<logs<K>, "extend"> &
     loggerType &
     extendMethods;
 };

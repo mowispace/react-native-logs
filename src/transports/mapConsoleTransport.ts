@@ -1,6 +1,14 @@
 import { transportFunctionType } from "../index";
 
-const mapConsoleTransport: transportFunctionType = (props) => {
+type ConsoleMethod = "log" | "warn" | "error" | "info" | (string & {});
+type LogLevel = string;
+
+export type MapConsoleTransportOptions = {
+  mapLevels?: Record<LogLevel, ConsoleMethod>;
+};
+const mapConsoleTransport: transportFunctionType<MapConsoleTransportOptions> = (
+  props
+) => {
   if (!props) return false;
 
   let logMethod = "log";

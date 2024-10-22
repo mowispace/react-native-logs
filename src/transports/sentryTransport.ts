@@ -1,6 +1,16 @@
 import { transportFunctionType } from "../index";
 
-const sentryTransport: transportFunctionType = (props) => {
+type SentryTransportOptions = {
+  SENTRY: {
+    captureException: (msg: string) => void;
+    addBreadcrumb: (msg: string) => void;
+  };
+  errorLevels?: string | Array<string>;
+};
+
+const sentryTransport: transportFunctionType<SentryTransportOptions> = (
+  props
+) => {
   if (!props) return false;
 
   if (!props?.options?.SENTRY) {

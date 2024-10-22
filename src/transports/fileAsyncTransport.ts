@@ -1,7 +1,32 @@
 import { transportFunctionType } from "../index";
 
+type RNFS = {
+  DocumentDirectoryPath: string;
+  documentDirectory: never;
+  writeAsStringAsync: undefined;
+  appendFile: (
+    filepath: string,
+    contents: string,
+    encoding?: string
+  ) => Promise<void>;
+};
+type EXPOFS = {
+  documentDirectory: string | null;
+  DocumentDirectoryPath: never;
+  writeAsStringAsync: (
+    fileUri: string,
+    contents: string,
+    options?: object
+  ) => Promise<void>;
+  readAsStringAsync?: (fileUri: string, options?: object) => Promise<string>;
+  getInfoAsync?: (
+    fileUri: string,
+    options?: object
+  ) => Promise<{ exists: boolean }>;
+  appendFile: undefined;
+};
 interface EXPOqueueitem {
-  FS: any;
+  FS: Required<EXPOFS>;
   file: string;
   msg: string;
 }
@@ -22,14 +47,22 @@ const EXPOFSreadwrite = async () => {
   }
 };
 
-const EXPOcheckqueue = async (FS: any, file: string, msg: string) => {
+const EXPOcheckqueue = async (
+  FS: Required<EXPOFS>,
+  file: string,
+  msg: string
+) => {
   EXPOqueue.push({ FS, file, msg });
   if (!EXPOelaborate) {
     await EXPOFSreadwrite();
   }
 };
 
-const EXPOFSappend = async (FS: any, file: string, msg: string) => {
+const EXPOFSappend = async (
+  FS: Required<EXPOFS>,
+  file: string,
+  msg: string
+) => {
   try {
     const fileInfo = await FS.getInfoAsync(file);
     if (!fileInfo.exists) {
@@ -72,7 +105,15 @@ const dateReplacer = (filename: string, type: "eu" | "us" | "iso") => {
   }
 };
 
-const fileAsyncTransport: transportFunctionType = (props) => {
+interface FileAsyncTransportOptions {
+  fileNameDateType: "eu" | "us" | "iso";
+  FS: RNFS | EXPOFS;
+  fileName?: string;
+  filePath?: string;
+}
+const fileAsyncTransport: transportFunctionType<FileAsyncTransportOptions> = (
+  props
+) => {
   if (!props) return false;
 
   let WRITE: (FS: any, file: string, msg: string) => Promise<boolean>;
