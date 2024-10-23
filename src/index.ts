@@ -107,12 +107,13 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
   : never;
 
 type configLoggerType<
-  T extends transportFunctionType<object> | transportFunctionType<object>[]
+  T extends transportFunctionType<object> | transportFunctionType<object>[],
+  Level extends string
 > = {
   severity?: string;
   transport?: T;
   transportOptions?: UnionToIntersection<MergeTransportOptions<T>>;
-  levels?: levelsType;
+  levels?: Record<Level, number>;
   async?: boolean;
   asyncFunc?: Function;
   stringifyFunc?: (msg: any) => string;
@@ -172,7 +173,8 @@ type OptionsWithConsoleFunc = {
 class logs<
   T extends
     | transportFunctionType<OptionsWithConsoleFunc>
-    | transportFunctionType<OptionsWithConsoleFunc>[]
+    | transportFunctionType<OptionsWithConsoleFunc>[],
+  K extends string
 > {
   private _levels: levelsType;
   private _level: string;
@@ -197,7 +199,7 @@ class logs<
   private _maxLevelsChars: number = 0;
   private _maxExtensionsChars: number = 0;
 
-  constructor(config: Required<configLoggerType<T>>) {
+  constructor(config: Required<configLoggerType<T, K>>) {
     this._levels = config.levels;
     this._level = config.severity ?? Object.keys(this._levels)[0];
 
@@ -580,12 +582,12 @@ type defLvlType = "debug" | "info" | "warn" | "error";
  * through the transport
  */
 const createLogger = <
-  Y extends string,
   K extends
     | transportFunctionType<any>
-    | transportFunctionType<any>[] = transportFunctionType<{}>
+    | transportFunctionType<any>[] = transportFunctionType<{ _def: string }>,
+  Y extends string = keyof typeof defaultLogger.levels
 >(
-  config?: configLoggerType<K>
+  config?: configLoggerType<K, Y>
 ) => {
   type levelMethods<levels extends string> = {
     [key in levels]: (...args: unknown[]) => void;
@@ -604,7 +606,7 @@ const createLogger = <
     ...mergeConfig,
   };
 
-  return new logs(mergedConfig) as unknown as Omit<logs<K>, "extend"> &
+  return new logs(mergedConfig) as unknown as Omit<logs<K, Y>, "extend"> &
     loggerType &
     extendMethods;
 };
