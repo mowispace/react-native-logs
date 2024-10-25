@@ -88,7 +88,7 @@ const RNFSappend = async (FS: any, file: string, msg: string) => {
   }
 };
 
-const dateReplacer = (filename: string, type: "eu" | "us" | "iso") => {
+const dateReplacer = (filename: string, type?: "eu" | "us" | "iso") => {
   let today = new Date();
   let d = today.getDate();
   let m = today.getMonth() + 1;
@@ -105,8 +105,8 @@ const dateReplacer = (filename: string, type: "eu" | "us" | "iso") => {
   }
 };
 
-interface FileAsyncTransportOptions {
-  fileNameDateType: "eu" | "us" | "iso";
+export interface FileAsyncTransportOptions {
+  fileNameDateType?: "eu" | "us" | "iso";
   FS: RNFS | EXPOFS;
   fileName?: string;
   filePath?: string;
@@ -129,10 +129,10 @@ const fileAsyncTransport: transportFunctionType<FileAsyncTransportOptions> = (
     WRITE = RNFSappend;
     filePath = props.options.FS.DocumentDirectoryPath;
   } else if (
-    props.options.FS.documentDirectory &&
-    props.options.FS.writeAsStringAsync &&
-    props.options.FS.readAsStringAsync &&
-    props.options.FS.getInfoAsync
+    props.options.FS["documentDirectory"] &&
+    props.options.FS["writeAsStringAsync"] &&
+    props.options.FS["readAsStringAsync"] &&
+    props.options.FS["getInfoAsync"]
   ) {
     WRITE = EXPOFSappend;
     filePath = props.options.FS.documentDirectory;

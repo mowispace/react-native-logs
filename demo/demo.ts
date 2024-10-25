@@ -6,7 +6,7 @@ import {
   defLvlType,
 } from "../src";
 
-const config = {
+var log = logger.createLogger({
   levels: {
     debug: 0,
     info: 1,
@@ -26,9 +26,8 @@ const config = {
       user: "blue",
     },
   },
-};
+});
 
-var log = logger.createLogger<defLvlType>(config);
 var rootLog = log.extend("root");
 var homeLog = log.extend("home");
 var userLog = log.extend("user");

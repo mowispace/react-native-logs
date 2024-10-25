@@ -86,7 +86,7 @@ below). All params are optional and will take default values if no corresponding
 ```javascript
 import { logger, consoleTransport } from "react-native-logs";
 
-const defaultConfig = {
+var log = logger.createLogger({
   levels: {
     debug: 0,
     info: 1,
@@ -108,9 +108,7 @@ const defaultConfig = {
   printDate: true,
   fixedExtLvlLength: false,
   enabled: true,
-};
-
-var log = logger.createLogger(defaultConfig);
+});
 
 log.debug("Debug message");
 log.info({ message: "hi!" });
@@ -123,7 +121,7 @@ Log levels have this format: `{ name : severity }` and you can create your perso
 ```javascript
 import { logger } from "react-native-logs";
 
-const config = {
+var log = logger.createLogger({
   levels: {
     trace: 0,
     info: 1,
@@ -131,9 +129,7 @@ const config = {
     error: 3,
     mad: 4,
   },
-};
-
-var log = logger.createLogger(config);
+});
 
 log.silly("Silly message");
 ```
@@ -142,31 +138,23 @@ log.silly("Silly message");
 
 (available only if you use typescript)
 
-To fully type the logger you can specify your custom or default levels when creating the logger.
-
-In this way typescript will be able to know your levels, and you will receive an error if you use a level that does not exist in the configuration.
+The package will take the types of log levels directly from the configuration, or the default ones if not specified.
 
 ```typescript
 import { logger } from "react-native-logs";
 
-const config = {
+var log = logger.createLogger({
   levels: {
     trace: 0,
     info: 1,
     error: 2,
   },
-};
+});
 
-var log = logger.createLogger<"trace" | "info" | "error">(config);
-
-// Or if you'd like to change only the original object you can do
-// var log = logger.createLogger<keyof typeof config.levels>(config);
 log.trace("message"); // correct log call
 
 log.silly("message"); // typescript error, "silly" method does not exist
 ```
-
-If you add `noUncheckedIndexedAccess: true` in your TypeScript configuration file, you MUST define log typing as described above.
 
 ### Custom transport
 
@@ -179,22 +167,25 @@ whatever you want. The following parameters are received by the function:
 - `extension?: string | null`: its namespace if it is an extended log
 - `options?: any`: the transportOptions object
 
-You can define your custom transport as follow (example in typescript)§:
+You can define your custom transport as follow (example in typescript):
 
 ```javascript
 import { logger, transportFunctionType } from "react-native-logs";
 
-const customTransport: transportFunctionType = (props) => {
+const customTransport: transportFunctionType<{ myCustomOption: string }> = (
+  props
+) => {
   // Do here whatever you want with the log message
   // You can use any options setted in config.transportOptions
   // Eg. a console log: console.log(props.level.text, props.msg)
 };
 
-const config = {
+var log = logger.createLogger({
   transport: customTransport,
-};
-
-var log = logger.createLogger(config);
+  transportOptions: {
+    myCustomOption: "option",
+  },
+});
 
 log.debug("Debug message");
 ```
@@ -209,15 +200,13 @@ transports. For some transports these may be mandatory, as in the case of the `F
 import { logger, fileAsyncTransport } from "react-native-logs";
 import RNFS from "react-native-fs";
 
-const config = {
+var log = logger.createLogger({
   transport: fileAsyncTransport,
   transportOptions: {
     FS: RNFS,
     fileName: `log.txt`,
   },
-};
-
-var log = logger.createLogger(config);
+});
 
 log.debug("Debug message");
 ```
@@ -244,11 +233,9 @@ react-native-logs includes some preset transports. You can import the one of you
 ```javascript
 import { logger, mapConsoleTransport } from "react-native-logs";
 
-const config = {
+var log = logger.createLogger({
   transport: mapConsoleTransport,
-};
-
-var log = logger.createLogger(config);
+});
 
 log.debug("Debug message");
 ```
@@ -294,7 +281,7 @@ If you need a different console or method to be used instead of `console.log` yo
 ```javascript
 import { logger, consoleTransport } from "react-native-logs";
 
-const config = {
+var log = logger.createLogger({
   levels: {
     debug: 0,
     info: 1,
@@ -313,9 +300,8 @@ const config = {
       home: "green",
     },
   },
-};
+});
 
-var log = logger.createLogger(config);
 var rootLog = log.extend("root");
 var homeLog = log.extend("home");
 
@@ -338,7 +324,7 @@ If mapLevels is not setted, the transport will try to map the console methods wi
 ```javascript
 import { logger, mapConsoleTransport } from "react-native-logs";
 
-const config = {
+var log = logger.createLogger({
   levels: {
     debug: 0,
     info: 1,
@@ -354,9 +340,7 @@ const config = {
       err: "error",
     },
   },
-};
-
-var log = logger.createLogger(config);
+});
 
 log.debug("Print this with console.log");
 log.err("Print this with console.error");
@@ -392,7 +376,7 @@ let date = today.getDate();
 let month = today.getMonth() + 1;
 let year = today.getFullYear();
 
-const config = {
+var log = logger.createLogger({
   severity: "debug",
   transport: fileAsyncTransport,
   transportOptions: {
@@ -402,9 +386,7 @@ const config = {
      */
     fileName: `logs_{date-today}`, // Create a new file every day
   },
-};
-
-var log = logger.createLogger(config);
+});
 
 log.info("Print this string to a file");
 ```
@@ -434,16 +416,14 @@ import * as Sentry from "@sentry/react-native";
  * Configure sentry
  */
 
-const config = {
+var log = logger.createLogger({
   severity: "debug",
   transport: sentryTransport,
   transportOptions: {
     SENTRY: Sentry,
     errorLevels: "error",
   },
-};
-
-var log = logger.createLogger(config);
+});
 
 log.warn("Send this log to Sentry as breadcumb");
 log.error("Send this log to Sentry as error");
@@ -458,12 +438,11 @@ To enable logging only for certain parts of the app, you can extend the logger t
 ```javascript
 import { logger, consoleTransport } from "react-native-logs";
 
-const config = {
+var log = logger.createLogger({
   transport: consoleTransport,
   enabledExtensions: ["ROOT", "HOME"],
-};
+});
 
-var log = logger.createLogger(config);
 var rootLog = log.extend("ROOT");
 var homeLog = log.extend("HOME");
 var profileLog = log.extend("PROFILE");
@@ -483,12 +462,11 @@ Dynamically enable/disable loggers and extensions, if it is called without param
 ```javascript
 import { logger, consoleTransport } from "react-native-logs";
 
-const config = {
+var log = logger.createLogger({
   transport: consoleTransport,
   enabledExtensions: ["ROOT", "HOME"],
-};
+});
 
-var log = logger.createLogger(config);
 var rootLog = log.extend("ROOT");
 var homeLog = log.extend("HOME");
 
@@ -625,7 +603,7 @@ import {
 } from "react-native-logs";
 import RNFS from "react-native-fs";
 
-const config = {
+var LOG = logger.createLogger({
   transport: __DEV__ ? consoleTransport : fileAsyncTransport,
   severity: __DEV__ ? "debug" : "error",
   transportOptions: {
@@ -636,9 +614,7 @@ const config = {
     },
     FS: RNFS,
   },
-};
-
-var LOG = logger.createLogger(config);
+});
 
 export { LOG };
 ```

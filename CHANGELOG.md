@@ -1,3 +1,39 @@
+## [5.3.0] - 25-10-2024
+
+- Improve type definitions (pr #109 by @DanielSRS)
+- Minor bugfix
+
+#### BREAKING CHANGES (only for typescript config)
+
+Starting from version v 5.3.0, the definition of types has been improved: transportOptions are now strongly typed based on the specific transport specified in the configuration, and it is no longer necessary to specify log level types, as these are also taken directly from the configuration.
+
+The configuration must be passed inline for it to work correctly and the log level type definitions that needed to be set up until version 5.2.2 must now be removed:
+
+```typescript
+import { logger } from "react-native-logs";
+
+var log = logger.createLogger({
+  levels: {
+    trace: 0,
+    info: 1,
+    error: 2,
+  },
+});
+
+log.trace("message"); // correct log call
+log.silly("message"); // typescript error, "silly" method does not exist
+```
+
+Additionally, it is now possible to specify custom options in your custom transport:
+
+```typescript
+const customTransport: transportFunctionType<{ myCustomOption: string }> = (
+  props
+) => {
+  // ...
+};
+```
+
 ## [5.2.2] - 21-10-2024
 
 - Reverting to the old merge config function
