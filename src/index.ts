@@ -40,21 +40,31 @@ let asyncFunc = (cb: Function) => {
   }, 0);
 };
 
-function stringifyAllProperties(obj: any): string {
-  return JSON.stringify(
-    obj,
-    function (key, value) {
-      if (value && typeof value === "object") {
-        return Object.getOwnPropertyNames(value).reduce((acc: any, prop) => {
-          acc[prop] = value[prop];
-          return acc;
-        }, {});
-      }
-      return value;
-    },
-    2
-  );
-}
+const safeStringify = (value: unknown): string => {
+  if (typeof value === "string") return value;
+  if (typeof value === "function")
+    return `[function ${value.name || "anonymous"}()]`;
+  if (value instanceof Error) return value.stack || value.message;
+
+  const cache = new Set();
+  try {
+    return JSON.stringify(
+      value,
+      (key, val) => {
+        if (typeof val === "object" && val !== null) {
+          if (cache.has(val)) {
+            return "[Circular Reference]";
+          }
+          cache.add(val);
+        }
+        return val;
+      },
+      2
+    );
+  } catch (error) {
+    return "[[Unserializable Value]]";
+  }
+};
 
 let stringifyFunc = (msg: any): string => {
   let stringMsg = "";
@@ -66,7 +76,7 @@ let stringifyFunc = (msg: any): string => {
     stringMsg = msg.message + " ";
   } else {
     try {
-      stringMsg = "\n" + stringifyAllProperties(msg) + "\n";
+      stringMsg = "\n" + safeStringify(msg) + "\n";
     } catch (error) {
       stringMsg += "Undefined Message";
     }

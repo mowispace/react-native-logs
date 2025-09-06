@@ -2,8 +2,8 @@ import { transportFunctionType } from "../index";
 
 type SentryTransportOptions = {
   SENTRY: {
-    captureException: (msg: string) => void;
-    addBreadcrumb: (msg: string) => void;
+    captureException: (msg: string | typeof Error) => void;
+    addBreadcrumb: (msg: string | { message: string }) => void;
   };
   errorLevels?: string | Array<string>;
 };
@@ -38,7 +38,7 @@ const sentryTransport: transportFunctionType<SentryTransportOptions> = (
     if (isError) {
       props.options.SENTRY.captureException(props.msg);
     } else {
-      props.options.SENTRY.addBreadcrumb(props.msg);
+      props.options.SENTRY.addBreadcrumb({ message: props.msg });
     }
     return true;
   } catch (error) {

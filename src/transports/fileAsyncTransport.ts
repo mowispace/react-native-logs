@@ -35,15 +35,23 @@ let EXPOqueue: Array<EXPOqueueitem> = [];
 let EXPOelaborate = false;
 
 const EXPOFSreadwrite = async () => {
+  if (EXPOqueue.length === 0) return;
+
   EXPOelaborate = true;
   const item = EXPOqueue[0];
-  const prevFile = await item.FS.readAsStringAsync(item.file);
-  const newMsg = prevFile + item.msg;
-  await item.FS.writeAsStringAsync(item.file, newMsg);
-  EXPOelaborate = false;
-  EXPOqueue.shift();
-  if (EXPOqueue.length > 0) {
-    await EXPOFSreadwrite();
+
+  try {
+    const prevFile = await item.FS.readAsStringAsync(item.file).catch(() => "");
+    const newMsg = prevFile + item.msg;
+    await item.FS.writeAsStringAsync(item.file, newMsg);
+  } catch (error) {
+    console.error("Failed to write log to file:", error);
+  } finally {
+    EXPOelaborate = false;
+    EXPOqueue.shift();
+    if (EXPOqueue.length > 0) {
+      EXPOFSreadwrite().then();
+    }
   }
 };
 
@@ -107,7 +115,7 @@ const dateReplacer = (filename: string, type?: "eu" | "us" | "iso") => {
 
 export interface FileAsyncTransportOptions {
   fileNameDateType?: "eu" | "us" | "iso";
-  FS: RNFS | EXPOFS;
+  FS: any;
   fileName?: string;
   filePath?: string;
 }
@@ -125,17 +133,20 @@ const fileAsyncTransport: transportFunctionType<FileAsyncTransportOptions> = (
       `react-native-logs: fileAsyncTransport - No FileSystem instance provided`
     );
   }
-  if (props.options.FS.DocumentDirectoryPath && props.options.FS.appendFile) {
+
+  let FSF = props.options.FS as RNFS | EXPOFS;
+
+  if (FSF.DocumentDirectoryPath && FSF.appendFile) {
     WRITE = RNFSappend;
-    filePath = props.options.FS.DocumentDirectoryPath;
+    filePath = FSF.DocumentDirectoryPath;
   } else if (
-    props.options.FS["documentDirectory"] &&
-    props.options.FS["writeAsStringAsync"] &&
-    props.options.FS["readAsStringAsync"] &&
-    props.options.FS["getInfoAsync"]
+    FSF["documentDirectory"] &&
+    FSF["writeAsStringAsync"] &&
+    FSF["readAsStringAsync"] &&
+    FSF["getInfoAsync"]
   ) {
     WRITE = EXPOFSappend;
-    filePath = props.options.FS.documentDirectory;
+    filePath = FSF.documentDirectory;
   } else {
     throw Error(
       `react-native-logs: fileAsyncTransport - FileSystem not supported`
@@ -152,7 +163,7 @@ const fileAsyncTransport: transportFunctionType<FileAsyncTransportOptions> = (
   let output = `${props?.msg}\n`;
   var path = filePath + "/" + fileName;
 
-  WRITE(props.options.FS, path, output);
+  WRITE(FSF, path, output);
 };
 
 export { fileAsyncTransport };

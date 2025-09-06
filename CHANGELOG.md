@@ -1,3 +1,13 @@
+## [5.4.0] - 06-09-2025
+
+- Fix Readme (issue #115)
+- Fix Sentry compatibility (issue #118)
+- Fix Crashlytics error report (issue #110)
+- Crashlytics: a log is only recorded as an error if its level matches a level defined in the `errorLevels` option
+- Improve object serialization logic
+- Change FS packages type to any (issue #112)
+- Minor bugfix
+
 ## [5.3.0] - 25-10-2024
 
 - Improve type definitions (pr #109 by @DanielSRS)

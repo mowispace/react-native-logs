@@ -2,7 +2,7 @@ import { transportFunctionType } from "../index";
 
 export type CrashlyticsTransportOption = {
   CRASHLYTICS: {
-    recordError: (msg: string) => void;
+    recordError: (error: Error | string) => void;
     log: (msg: string) => void;
   };
   errorLevels?: string | Array<string>;
@@ -14,36 +14,43 @@ const crashlyticsTransport: transportFunctionType<
   if (!props) return false;
 
   if (!props?.options?.CRASHLYTICS) {
-    throw Error(
+    throw new Error(
       `react-native-logs: crashlyticsTransport - No crashlytics instance provided`
     );
   }
 
-  let isError = true;
+  let isError = false;
 
   if (props?.options?.errorLevels) {
     isError = false;
-    if (Array.isArray(props?.options?.errorLevels)) {
-      if (props.options.errorLevels.includes(props.level.text)) {
-        isError = true;
-      }
-    } else {
-      if (props.options.errorLevels === props.level.text) {
-        isError = true;
-      }
+    const level = props.level.text;
+    const errorLevels = props.options.errorLevels;
+
+    const levelsToCheck = Array.isArray(errorLevels)
+      ? errorLevels
+      : [errorLevels];
+    if (levelsToCheck.includes(level)) {
+      isError = true;
     }
   }
 
   try {
+    let msgToRecord: any = props.msg;
+
     if (isError) {
-      props.options.CRASHLYTICS.recordError(props.msg);
+      const errorToRecord =
+        msgToRecord instanceof Error
+          ? msgToRecord
+          : new Error(String(msgToRecord));
+
+      props.options.CRASHLYTICS.recordError(errorToRecord);
     } else {
-      props.options.CRASHLYTICS.log(props.msg);
+      props.options.CRASHLYTICS.log(String(msgToRecord));
     }
     return true;
   } catch (error) {
-    throw Error(
-      `react-native-logs: crashlyticsTransport - Error on send msg to crashlytics`
+    throw new Error(
+      `react-native-logs: crashlyticsTransport - Error on send msg to crashlytics: ${error}`
     );
   }
 };
