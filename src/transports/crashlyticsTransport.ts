@@ -2,7 +2,7 @@ import { transportFunctionType } from "../index";
 
 export type CrashlyticsTransportOption = {
   CRASHLYTICS: {
-    recordError: (error: Error | string) => void;
+    recordError: (error: Error | string, name?: string) => void;
     log: (msg: string) => void;
   };
   errorLevels?: string | Array<string>;
@@ -43,7 +43,10 @@ const crashlyticsTransport: transportFunctionType<
           ? msgToRecord
           : new Error(String(msgToRecord));
 
-      props.options.CRASHLYTICS.recordError(errorToRecord);
+      props.options.CRASHLYTICS.recordError(
+        errorToRecord,
+        props.extension || undefined
+      );
     } else {
       props.options.CRASHLYTICS.log(String(msgToRecord));
     }
