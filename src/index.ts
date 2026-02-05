@@ -28,11 +28,23 @@
  */
 
 /** Import preset transports */
-import { consoleTransport } from "./transports/consoleTransport";
-import { mapConsoleTransport } from "./transports/mapConsoleTransport";
-import { fileAsyncTransport } from "./transports/fileAsyncTransport";
+import {
+  consoleTransport,
+  ConsoleTransportOptions,
+} from "./transports/consoleTransport";
+import {
+  mapConsoleTransport,
+  MapConsoleTransportOptions,
+} from "./transports/mapConsoleTransport";
+import {
+  fileAsyncTransport,
+  FileAsyncTransportOptions,
+} from "./transports/fileAsyncTransport";
 import { sentryTransport } from "./transports/sentryTransport";
-import { crashlyticsTransport } from "./transports/crashlyticsTransport";
+import {
+  crashlyticsTransport,
+  CrashlyticsTransportOption,
+} from "./transports/crashlyticsTransport";
 
 let asyncFunc = (cb: Function) => {
   setTimeout(() => {
@@ -59,7 +71,7 @@ const safeStringify = (value: unknown): string => {
         }
         return val;
       },
-      2
+      2,
     );
   } catch (error) {
     return "[[Unserializable Value]]";
@@ -111,14 +123,14 @@ type MergeTransportOptions<T> = T extends (infer U)[]
   : ExtractOptions<T>;
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I extends U
+  k: infer I extends U,
 ) => void
   ? I
   : never;
 
 type configLoggerType<
   T extends transportFunctionType<object> | transportFunctionType<object>[],
-  Level extends string
+  Level extends string,
 > = {
   severity?: string;
   transport?: T;
@@ -184,7 +196,7 @@ class logs<
   T extends
     | transportFunctionType<OptionsWithConsoleFunc>
     | transportFunctionType<OptionsWithConsoleFunc>[],
-  K extends string
+  K extends string,
 > {
   private _levels: levelsType;
   private _level: string;
@@ -237,7 +249,7 @@ class logs<
     /** find max levels characters */
     if (this._fixedExtLvlLength) {
       this._maxLevelsChars = Math.max(
-        ...Object.keys(this._levels).map((k) => k.length)
+        ...Object.keys(this._levels).map((k) => k.length),
       );
     }
 
@@ -249,12 +261,12 @@ class logs<
       }
       if (level[0] === "_") {
         throw Error(
-          `[react-native-logs] ERROR: keys with first char "_" is reserved and cannot be used as levels`
+          `[react-native-logs] ERROR: keys with first char "_" is reserved and cannot be used as levels`,
         );
       }
       if (reservedKey.indexOf(level) !== -1) {
         throw Error(
-          `[react-native-logs] ERROR: [${level}] is a reserved key, you cannot set it as custom level`
+          `[react-native-logs] ERROR: [${level}] is a reserved key, you cannot set it as custom level`,
         );
       }
       if (typeof this._levels[level] === "number") {
@@ -279,7 +291,7 @@ class logs<
   private _sendToTransport = (
     level: string,
     extension: string | null,
-    msgs: any
+    msgs: any,
   ) => {
     if (!this._enabled) return false;
     if (!this._isLevelEnabled(level)) {
@@ -321,7 +333,7 @@ class logs<
   private _formatMsg = (
     level: string,
     extension: string | null,
-    msgs: any
+    msgs: any,
   ): string => {
     if (typeof this._formatFunc === "function") {
       return this._formatFunc(level, extension, msgs);
@@ -406,7 +418,7 @@ class logs<
   extend = (extension: string): extendedLogType => {
     if (extension === "console") {
       throw Error(
-        `[react-native-logs:extend] ERROR: you cannot set [console] as extension, use patchConsole instead`
+        `[react-native-logs:extend] ERROR: you cannot set [console] as extension, use patchConsole instead`,
       );
     }
     if (this._extensions.includes(extension)) {
@@ -421,47 +433,47 @@ class logs<
       };
       extendedLog["extend"] = (extension: string) => {
         throw Error(
-          `[react-native-logs] ERROR: you cannot extend a logger from an already extended logger`
+          `[react-native-logs] ERROR: you cannot extend a logger from an already extended logger`,
         );
       };
       extendedLog["enable"] = () => {
         throw Error(
-          `[react-native-logs] ERROR: You cannot enable a logger from extended logger`
+          `[react-native-logs] ERROR: You cannot enable a logger from extended logger`,
         );
       };
       extendedLog["disable"] = () => {
         throw Error(
-          `[react-native-logs] ERROR: You cannot disable a logger from extended logger`
+          `[react-native-logs] ERROR: You cannot disable a logger from extended logger`,
         );
       };
       extendedLog["getExtensions"] = () => {
         throw Error(
-          `[react-native-logs] ERROR: You cannot get extensions from extended logger`
+          `[react-native-logs] ERROR: You cannot get extensions from extended logger`,
         );
       };
       extendedLog["setSeverity"] = (level: string) => {
         throw Error(
-          `[react-native-logs] ERROR: You cannot set severity from extended logger`
+          `[react-native-logs] ERROR: You cannot set severity from extended logger`,
         );
       };
       extendedLog["getSeverity"] = () => {
         throw Error(
-          `[react-native-logs] ERROR: You cannot get severity from extended logger`
+          `[react-native-logs] ERROR: You cannot get severity from extended logger`,
         );
       };
       extendedLog["patchConsole"] = () => {
         throw Error(
-          `[react-native-logs] ERROR: You cannot patch console from extended logger`
+          `[react-native-logs] ERROR: You cannot patch console from extended logger`,
         );
       };
       extendedLog["getOriginalConsole"] = () => {
         throw Error(
-          `[react-native-logs] ERROR: You cannot get original console from extended logger`
+          `[react-native-logs] ERROR: You cannot get original console from extended logger`,
         );
       };
     });
     this._maxExtensionsChars = Math.max(
-      ...this._extensions.map((ext: string) => ext.length)
+      ...this._extensions.map((ext: string) => ext.length),
     );
     return extendedLog;
   };
@@ -481,7 +493,7 @@ class logs<
       }
     } else {
       throw Error(
-        `[react-native-logs:enable] ERROR: Extension [${extension}] not exist`
+        `[react-native-logs:enable] ERROR: Extension [${extension}] not exist`,
       );
     }
 
@@ -516,7 +528,7 @@ class logs<
       }
     } else {
       throw Error(
-        `[react-native-logs:disable] ERROR: Extension [${extension}] not exist`
+        `[react-native-logs:disable] ERROR: Extension [${extension}] not exist`,
       );
     }
 
@@ -540,7 +552,7 @@ class logs<
       this._level = level;
     } else {
       throw Error(
-        `[react-native-logs:setSeverity] ERROR: Level [${level}] not exist`
+        `[react-native-logs:setSeverity] ERROR: Level [${level}] not exist`,
       );
     }
     return this._level;
@@ -576,7 +588,7 @@ class logs<
       } else {
         this._originalConsole &&
           this._originalConsole.log(
-            `[react-native-logs:patchConsole] WARNING: "${level}" method does not exist in console and will not be available`
+            `[react-native-logs:patchConsole] WARNING: "${level}" method does not exist in console and will not be available`,
           );
       }
     });
@@ -585,6 +597,20 @@ class logs<
 
 type defLvlType = "debug" | "info" | "warn" | "error";
 
+type levelMethods<levels extends string> = {
+  [key in levels]: (...args: unknown[]) => void;
+};
+
+type LoggerInstance<Levels extends string> = levelMethods<Levels> & {
+  extend: (extension: string) => LoggerInstance<Levels>;
+  enable: (extension?: string) => boolean;
+  disable: (extension?: string) => boolean;
+  getExtensions: () => string[];
+  setSeverity: (level: string) => string;
+  getSeverity: () => string;
+  patchConsole: () => void;
+};
+
 /**
  * Create a logger object. All params will take default values if not passed.
  * each levels has its level severity so we can filter logs with < and > operators
@@ -592,23 +618,12 @@ type defLvlType = "debug" | "info" | "warn" | "error";
  * through the transport
  */
 const createLogger = <
-  K extends
-    | transportFunctionType<any>
-    | transportFunctionType<any>[] = transportFunctionType<{ _def: string }>,
-  Y extends string = keyof typeof defaultLogger.levels
+  K extends transportFunctionType<any> | transportFunctionType<any>[] =
+    transportFunctionType<{ _def: string }>,
+  Y extends string = keyof typeof defaultLogger.levels,
 >(
-  config?: configLoggerType<K, Y>
+  config?: configLoggerType<K, Y>,
 ) => {
-  type levelMethods<levels extends string> = {
-    [key in levels]: (...args: unknown[]) => void;
-  };
-
-  type loggerType = levelMethods<Y>;
-
-  type extendMethods = {
-    extend: (extension: string) => loggerType;
-  };
-
   let mergeConfig = config ? { ...config } : ({} as object);
 
   const mergedConfig = {
@@ -616,9 +631,7 @@ const createLogger = <
     ...mergeConfig,
   };
 
-  return new logs(mergedConfig) as unknown as Omit<logs<K, Y>, "extend"> &
-    loggerType &
-    extendMethods;
+  return new logs(mergedConfig) as unknown as LoggerInstance<Y>;
 };
 
 const logger = { createLogger };
@@ -632,4 +645,13 @@ export {
   crashlyticsTransport,
 };
 
-export type { transportFunctionType, configLoggerType, defLvlType };
+export type {
+  transportFunctionType,
+  configLoggerType,
+  defLvlType,
+  LoggerInstance,
+  ConsoleTransportOptions,
+  MapConsoleTransportOptions,
+  FileAsyncTransportOptions,
+  CrashlyticsTransportOption,
+};
