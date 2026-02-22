@@ -25,6 +25,25 @@ type EXPOFS = {
   ) => Promise<{ exists: boolean }>;
   appendFile: undefined;
 };
+type EXPONEXTFS = {
+  File: new (...args: string[]) => {
+    uri: string;
+    name: string;
+    exists: boolean;
+    create: (options?: {
+  intermediates?: boolean;
+  overwrite?: boolean;
+}) => void;
+    open: () => {
+      writeBytes: (data: Uint8Array) => void;
+      close: () => void;
+      size: number | null;
+      offset: number | null;
+    };
+  };
+  Paths: any;
+};
+
 interface EXPOqueueitem {
   FS: Required<EXPOFS>;
   file: string;
@@ -34,6 +53,12 @@ interface EXPOqueueitem {
 let EXPOqueue: Array<EXPOqueueitem> = [];
 let EXPOelaborate = false;
 
+interface EXPONEXTFSqueueitem {
+  FS: Required<EXPONEXTFS>;
+  file: string;
+  msg: string;
+}
+
 const EXPOFSreadwrite = async () => {
   if (EXPOqueue.length === 0) return;
 
@@ -41,11 +66,12 @@ const EXPOFSreadwrite = async () => {
   const item = EXPOqueue[0];
 
   try {
-    const prevFile = await item.FS.readAsStringAsync(item.file).catch(() => "");
+    const prevFile =
+      (await item.FS.readAsStringAsync(item.file).catch(() => "")) || "";
     const newMsg = prevFile + item.msg;
     await item.FS.writeAsStringAsync(item.file, newMsg);
   } catch (error) {
-    console.error("Failed to write log to file:", error);
+    console.error("Failed to write log to file (expo legacy):", error);
   } finally {
     EXPOelaborate = false;
     EXPOqueue.shift();
@@ -96,6 +122,70 @@ const RNFSappend = async (FS: any, file: string, msg: string) => {
   }
 };
 
+let EXPONEXTFSqueue: Array<EXPONEXTFSqueueitem> = [];
+let EXPONEXTFSelaborate = false;
+
+const EXPONEXTFSprocessQueue = async () => {
+  if (EXPONEXTFSqueue.length === 0) return;
+  EXPONEXTFSelaborate = true;
+  const item = EXPONEXTFSqueue[0];
+
+  try {
+    const FS: EXPONEXTFS = item.FS;
+    const FileClass = FS.File;
+    if (!FileClass) throw new Error("EXPO NEXT FS does not expose File");
+
+    const file = new FileClass(item.file);
+
+    try {
+      if (!file.exists) {
+        file.create({ intermediates: true });
+      }
+    } catch (e) {
+      // maybe concurrently created
+    }
+
+    const fileHandler = file.open();
+
+    try {
+      const size = typeof fileHandler.size === "number" ? fileHandler.size : 0;
+      fileHandler.offset = size 
+
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(item.msg);
+
+      fileHandler.writeBytes(bytes);
+    } finally {
+      try {
+        fileHandler.close();
+      } catch (e) {
+        console.warn("EXPO FS NEXT error while closing FileHandle", e);
+      }
+    }
+  } catch (error) {
+    console.error("EXPO FS NEXT failed to write log to file:", error);
+  } finally {
+    EXPONEXTFSelaborate = false;
+    EXPONEXTFSqueue.shift();
+    if (EXPONEXTFSqueue.length > 0) {
+      EXPONEXTFSprocessQueue().then();
+    }
+  }
+};
+
+const EXPONEXTFSappend = async (FS: EXPONEXTFS, file: string, msg: string) => {
+  try {
+    EXPONEXTFSqueue.push({ FS, file, msg });
+    if (!EXPONEXTFSelaborate) {
+      await EXPONEXTFSprocessQueue();
+    }
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
 const dateReplacer = (filename: string, type?: "eu" | "us" | "iso") => {
   let today = new Date();
   let d = today.getDate();
@@ -134,19 +224,27 @@ const fileAsyncTransport: transportFunctionType<FileAsyncTransportOptions> = (
     );
   }
 
-  let FSF = props.options.FS as RNFS | EXPOFS;
+  const FSF = props.options.FS as RNFS | EXPOFS | EXPONEXTFS;
 
-  if (FSF.DocumentDirectoryPath && FSF.appendFile) {
+  if ((FSF as RNFS).DocumentDirectoryPath && (FSF as RNFS).appendFile) {
     WRITE = RNFSappend;
-    filePath = FSF.DocumentDirectoryPath;
-  } else if (
-    FSF["documentDirectory"] &&
-    FSF["writeAsStringAsync"] &&
-    FSF["readAsStringAsync"] &&
-    FSF["getInfoAsync"]
+    filePath = (FSF as RNFS).DocumentDirectoryPath;
+  }
+  else if (
+    (FSF as EXPOFS).documentDirectory &&
+    (FSF as EXPOFS).writeAsStringAsync &&
+    (FSF as EXPOFS).readAsStringAsync &&
+    (FSF as EXPOFS).getInfoAsync
   ) {
     WRITE = EXPOFSappend;
-    filePath = FSF.documentDirectory;
+    filePath = (FSF as EXPOFS).documentDirectory!;
+  }
+  else if (
+    (FSF as EXPONEXTFS).File &&
+    (FSF as EXPONEXTFS).Paths
+  ) {
+    WRITE = EXPONEXTFSappend;
+    filePath = (FSF as EXPONEXTFS).Paths.document;
   } else {
     throw Error(
       `react-native-logs: fileAsyncTransport - FileSystem not supported`
@@ -160,8 +258,8 @@ const fileAsyncTransport: transportFunctionType<FileAsyncTransportOptions> = (
 
   if (props?.options?.filePath) filePath = props.options.filePath;
 
-  let output = `${props?.msg}\n`;
-  var path = filePath + "/" + fileName;
+  const output = `${props?.msg}\n`;
+  const path = `${filePath}/${fileName}`;
 
   WRITE(FSF, path, output);
 };
