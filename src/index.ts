@@ -46,10 +46,26 @@ import {
   CrashlyticsTransportOption,
 } from "./transports/crashlyticsTransport";
 
+type IdleCallbackHandle = number;
+
+type IdleCallback = (deadline?: {
+  didTimeout: boolean;
+  timeRemaining: () => number;
+}) => void;
+
 let asyncFunc = (cb: Function) => {
-  setTimeout(() => {
+  if (typeof global.requestIdleCallback === "function") {
+    return global.requestIdleCallback(
+      () => {
+        return cb();
+      },
+      { timeout: 100 },
+    );
+  }
+
+  return setTimeout(() => {
     return cb();
-  }, 0);
+  }, 0) as unknown as IdleCallbackHandle;
 };
 
 const safeStringify = (value: unknown): string => {

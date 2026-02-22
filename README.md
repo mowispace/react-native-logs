@@ -8,7 +8,7 @@ Performance-aware simple logger for React-Native, Expo (managed and bare) and re
 file writing, etc.).
 
 Each level has its severity: a number that represents its importance in
-ascending order from the least important to the most important. Eg.  debug:0, info:1, warn:2, error:3.
+ascending order from the least important to the most important. Eg. debug:0, info:1, warn:2, error:3.
 
 By config the logger with a minium severity level, you will see only the logs that have it
 highest. Then logs will be managed by transport: the function that will display/save/send log
@@ -70,8 +70,8 @@ below). All params are optional and will take default values if no corresponding
 | transportOptions  | Object                 | Set custom options for transports                                                      | `null`                                  |
 | levels            | Object                 | Set custom log levels: {name:power}                                                    | `false`                                 |
 | async             | boolean                | Set to true for async logs (to improve app performance)                                | `false`                                 |
-| asyncFunc         | function               | Set a custom async function `(cb: Function) => {return cb()}`                           | `setTimeout`                            |
-| stringifyFunc     | function               | Set a custom stringify function `(msg: any) => string`                                  | a customized `JSON.stringify`           |
+| asyncFunc         | function               | Set a custom async function `(cb: Function) => {return cb()}`                          | `requestIdleCallback` / `setTimeout`    |
+| stringifyFunc     | function               | Set a custom stringify function `(msg: any) => string`                                 | a customized `JSON.stringify`           |
 | formatFunc        | function               | Set a custom format function `(level: string, extension?: string, msg: any) => string` | default string format function          |
 | dateFormat        | string or function     | `time`, `local`, `utc`, `iso` or `(date: Date) => string`                              | `time`                                  |
 | printLevel        | boolean                | Choose whether to print the log level                                                  | `true`                                  |
@@ -738,18 +738,9 @@ const log = logger.createLogger({
 
 ### Improve performance
 
-In react-native you can improve performance by setting the `InteractionManager.runAfterInteractions` async function:
+In React Native, you can improve performance by simply setting `async: true` in your logger configuration.
 
-```javascript
-import { logger } from "react-native-logs";
-
-const InteractionManager = require("react-native").InteractionManager;
-
-const log = logger.createLogger({
-  async: true,
-  asyncFunc: InteractionManager.runAfterInteractions,
-});
-```
+By default, the logger will use `requestIdleCallback` for modern React Native and Hermes environments to defer logging until the UI thread is idle. For backward compatibility with older JavaScript engines, it automatically falls back to `setTimeout`. This ensures your logging doesn't cause frame drops during animations or heavy renders.
 
 ## Sponsors
 

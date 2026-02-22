@@ -1,3 +1,10 @@
+## [5.6.0] - 22-02-2026
+
+- Replaced deprecated `InteractionManager` with `requestIdleCallback` (and `setTimeout` fallback) to fix deprecation warnings (issue #124)
+- Fix Sentry integration compatibility in transportOptions (issue #125)
+- Support expo filesystem next (pr #121 by @roitium)
+- Fix logger typing error TS4094 (pr #126 by @theEarlDev)
+
 ## [5.5.0] - 07-09-2025
 
 - Add extension on Crashlytics errors (as fileName)
@@ -42,7 +49,7 @@ Additionally, it is now possible to specify custom options in your custom transp
 
 ```typescript
 const customTransport: transportFunctionType<{ myCustomOption: string }> = (
-  props
+  props,
 ) => {
   // ...
 };

@@ -9,13 +9,13 @@ type SentryTransportOptions = {
 };
 
 const sentryTransport: transportFunctionType<SentryTransportOptions> = (
-  props
+  props,
 ) => {
   if (!props) return false;
 
   if (!props?.options?.SENTRY) {
     throw Error(
-      `react-native-logs: sentryTransport - No sentry instance provided`
+      `react-native-logs: sentryTransport - No sentry instance provided`,
     );
   }
 
@@ -38,12 +38,14 @@ const sentryTransport: transportFunctionType<SentryTransportOptions> = (
     if (isError) {
       props.options.SENTRY.captureException(props.msg);
     } else {
-      props.options.SENTRY.addBreadcrumb({ message: props.msg });
+      props.options.SENTRY.addBreadcrumb(
+        typeof props.msg === "string" ? { message: props.msg } : props.msg,
+      );
     }
     return true;
   } catch (error) {
     throw Error(
-      `react-native-logs: sentryTransport - Error on send msg to Sentry`
+      `react-native-logs: sentryTransport - Error on send msg to Sentry`,
     );
   }
 };
