@@ -8,8 +8,7 @@ Performance-aware simple logger for React-Native, Expo (managed and bare) and re
 file writing, etc.).
 
 Each level has its severity: a number that represents its importance in
-ascending order from the least important to the most important. Eg. _debug:0, info:1, warn:2,
-error:3_.
+ascending order from the least important to the most important. Eg.  debug:0, info:1, warn:2, error:3.
 
 By config the logger with a minium severity level, you will see only the logs that have it
 highest. Then logs will be managed by transport: the function that will display/save/send log
@@ -71,12 +70,14 @@ below). All params are optional and will take default values if no corresponding
 | transportOptions  | Object                 | Set custom options for transports                                                      | `null`                                  |
 | levels            | Object                 | Set custom log levels: {name:power}                                                    | `false`                                 |
 | async             | boolean                | Set to true for async logs (to improve app performance)                                | `false`                                 |
-| asyncFunc         | function               | Set a cutom async function `(cb: Function) => {return cb()}`                           | `setTimeout`                            |
-| stringifyFunc     | function               | Set a cutom stringify function `(msg: any) => string`                                  | a customized `JSON.stringify`           |
+| asyncFunc         | function               | Set a custom async function `(cb: Function) => {return cb()}`                           | `setTimeout`                            |
+| stringifyFunc     | function               | Set a custom stringify function `(msg: any) => string`                                  | a customized `JSON.stringify`           |
 | formatFunc        | function               | Set a custom format function `(level: string, extension?: string, msg: any) => string` | default string format function          |
 | dateFormat        | string or function     | `time`, `local`, `utc`, `iso` or `(date: Date) => string`                              | `time`                                  |
 | printLevel        | boolean                | Choose whether to print the log level                                                  | `true`                                  |
 | printDate         | boolean                | Choose whether to print the log date/time                                              | `true`                                  |
+| printFileLine     | boolean                | Choose whether to print the file name and line number (requires babel plugin)          | `false`                                 |
+| fileLineOffset    | number                 | Adjust the line number offset if needed                                                | `0`                                     |
 | fixedExtLvlLength | boolean                | Ensure consistent character count alignment when printing extensions and levels        | `false`                                 |
 | enabled           | boolean                | Enable or disable logging                                                              | `true`                                  |
 | enabledExtensions | string[]               | Enable only certain namespaces                                                         | `null`                                  |
@@ -217,7 +218,7 @@ Log messages can be concatenated by adding arguments to the log function:
 
 ```javascript
 var errorObject = {
-  staus: 404,
+  status: 404,
   message: "Undefined Error",
 };
 log.error("New error occured", errorObject);
@@ -429,6 +430,35 @@ log.warn("Send this log to Sentry as breadcumb");
 log.error("Send this log to Sentry as error");
 ```
 
+### **crashlyticsTransport**
+
+Send logs to [Crashlytics](https://firebase.google.com/docs/crashlytics). The transport allows setting which log levels are errors, so that they are recorded as non-fatal errors in Crashlytics. Other logs are logged as standard log messages.
+
+#### Accepted Options:
+
+| name        | type                    | description                                                                      | default |
+| ----------- | ----------------------- | -------------------------------------------------------------------------------- | ------- |
+| CRASHLYTICS | Object                  | MANDATORY, Crashlytics instance for the transport                                | `null`  |
+| errorLevels | Array<string> or string | Specify which log levels are errors (If null, all msg will be treated as errors) | `null`  |
+
+#### Example:
+
+```javascript
+import { logger, crashlyticsTransport } from "react-native-logs";
+import crashlytics from "@react-native-firebase/crashlytics";
+
+var log = logger.createLogger({
+  transport: crashlyticsTransport,
+  transportOptions: {
+    CRASHLYTICS: crashlytics(),
+    errorLevels: "error",
+  },
+});
+
+log.warn("Send this log to Crashlytics as log message");
+log.error("Send this log to Crashlytics as non-fatal error");
+```
+
 ## Extensions (Namespaced loggers)
 
 To enable logging only for certain parts of the app, you can extend the logger to different namespaces using the "extend" method. You can enable these extensions from the configuration (`config.enabledExtensions`) or by using the `enable`/`disable` methods.
@@ -557,6 +587,15 @@ log.patchConsole();
 console.log("This method use your logger");
 console.warn("This method use your logger too");
 console.debug("this message will not be shown"); // severity is set to 'log'
+```
+
+#### getOriginalConsole
+
+Get the original console object if it was overwritten by `patchConsole`.
+
+```javascript
+var originalConsole = log.getOriginalConsole();
+originalConsole.log("This will use the standard console.log");
 ```
 
 ## Usage Tips

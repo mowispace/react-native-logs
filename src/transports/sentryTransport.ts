@@ -43,7 +43,7 @@ const sentryTransport: transportFunctionType<SentryTransportOptions> = (
     return true;
   } catch (error) {
     throw Error(
-      `react-native-logs: sentryTransport - Error oon send msg to Sentry`
+      `react-native-logs: sentryTransport - Error on send msg to Sentry`
     );
   }
 };
